@@ -15,4 +15,12 @@
 
 
 (setq result (cl-reason:run-program "test_prog_2.clr"))
-(write result)
+(setq liste (first  result))
+;(write liste)
+(mapcar (lambda (x) 
+        ; (write (symbol-plist (first x)))
+          (get (first x) 'cl-reason::name)
+)
+
+         
+liste)
