@@ -1,0 +1,6 @@
+vater(paul,peter).
+vater(paul,klaus).
+vater(klaus,steven).
+forall x y z: grossvater(x,y) <= vater(x,z) and vater(z,y).
+
+exists x: grossvater(x,steven).

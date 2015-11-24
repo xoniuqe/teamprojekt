@@ -1,0 +1,5 @@
+alle-kleiner([], N).
+alle-kleiner([F| R], N) :- F < N, alle-kleiner(R,N).
+
+alle-kleiner([1,3,5],6).
+
