@@ -1,2 +1,4 @@
 *.lisp~
 **/*.lisp~
+*.ofasl~
+**/*.ofasl~
