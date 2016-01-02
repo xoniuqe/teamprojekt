@@ -1,5 +1,8 @@
-alle-kleiner([], N).
-alle-kleiner([F| R], N) :- F < N, alle-kleiner(R,N).
+farbe( rot).
+farbe( blau).
+farbe( gelb).
+farbe( gruen).
 
-alle-kleiner([1,3,5],6).
+forall X Y: nachbar( X, Y) <= farbe( X) and farbe (Y).
 
+exists A B C D E: karte(A, B , C , D, E).
