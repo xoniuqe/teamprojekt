@@ -1,8 +1,0 @@
-farbe( rot).
-farbe( blau).
-farbe( gelb).
-farbe( gruen).
-
-forall X Y: nachbar( X, Y) <= farbe( X) and farbe (Y).
-
-exists A B C D E: karte(A, B , C , D, E).
