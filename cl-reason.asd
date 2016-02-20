@@ -1,12 +1,9 @@
-(in-package :cl-user)
+(in-package :asdf-user)
 
-(defpackage :cl-reason-asd
-  (:use :common-lisp :asdf :cl-ppcre :yacc)
-  )
-
-(in-package :cl-reason-asd)
-
-(defsystem "cl-reason"
-	:name "cl-reason"
-    :components ((:file "packages")
-				 (:file "cl-reason")))
+(defsystem cl-reason
+  :name "cl-reason"
+  :version "0.0.0"
+  :maintainer "Steven Kutsch"
+  :author "Steven Kutsch <kutschs@hochschule-trier.de"
+  :description "A reasoning system for horn logik developed in common lisp"
+  :components ((:file "src/test")))

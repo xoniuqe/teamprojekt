@@ -1,0 +1,5 @@
+(load "init")
+(load "util/util")
+(load "parser/lexer")
+(load "parser/parser")
+(load "cli")
