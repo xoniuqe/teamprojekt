@@ -1,0 +1,11 @@
+\chapter{Ausblick}\label{ausblick}
+Das entwickelte System stellt lediglich den logischen Kern eines Schlussfolgerungssystem f{\"u}r Hornklauseln dar. In diesem Kapitel sollen kurz denkbare und sinnvolle Erweiterungen dargestellt werden.
+
+\subsection*{User Interface}
+Aktuell liegt das Schlussfolgerungssystem lediglich als Lisp Code vor, der in einem Lispsystem geladen werden kann. Programme k{\"o}nnen dann durch einen Aufruf der Funktion {\tt run-program} {\"u}ber Angabe des Pfades ausgewertet werden. Ein User Interface zum laden von Programmen und interaktivem Stellen von Anfragen w{\"a}re eine sinnvolle Erweiterung. Dadurch k{\"o}nnte auch das Problem der unn{\"o}tigen existenzquantifizierten Variablen in Anfragen gel{\"o}st werden.
+
+\subsection*{Vordefinierte Pr{\"a}dikate}
+Zahlen und arithmetische Ausdr{\"u}cke erf{\"u}llen bisher keinen besonderen Zweck. Zahlen werden als Konstanten und arithmetische Ausdr{\"u}cke als Funktionsterme interpretiert. Eine gesonderte Verarbeitung {\"u}ber vordefinierte Pr{\"a}dikate sollte leicht in die bestehenden Algorithmen einzubauen sein.
+
+\subsection*{Sorten f{\"u}r Terme}
+Funktionsterme sind als Symbole realisiert. Dies erm{\"o}glicht eine beliebige Erweiterung um Propertys. So k{\"o}nnte z. B. jedem Term eine Sorte zugewiesen werden.

@@ -1,0 +1,10 @@
+* Einleitung
+** Problembeschreibung
+*** Schlißen in logischen Systemen
+    - Schlißen in Hornlogik
+    - SLD Resolution
+      - Algorithmus
+      - Beispiel
+* Hauptteil
+  - 
+* Schluss

@@ -1,0 +1,82 @@
+\chapter{Prolog}\label{prolog}
+Die derzeit wichtigste logische Programmiersprache ist Prolog \cite{prolog}. Der rein logische Teil der Sprache besteht aus einem Schlussfolgerungssystem basierend auf der SLD-Resolution. Hinzu kommt ein nicht-logischer Teil, der es ermöglicht praktische Anwendungen rein in Prolog zu implementieren. Im folgenden wird der rein logische Kern von Prolog vorgestellt.
+
+\section{Syntax}
+Prologs Syntax entspricht weitgehend der Syntax der Prädikatenlogik, wobei nur Hornklauseln in Fakten- und Regelform zulässig sind.
+
+Die Syntax für Terme entspricht Definition \ref{terme}. Zwischen Variablen und Konstanten wird dabei durch Groß- und Kleinschreibung unterschieden. Bezeichner die mit einem Großbuchstaben beginnen sind Variablen, alle anderen Bezeichner werden als Konstanten interpretiert.
+
+Listen stellen eine Erweiterung der Terme wie sie in Kapitel \ref{logik} vorgestellt werden dar.
+
+\begin{leftbar}
+  \begin{definition}[Prologlisten]\label{prologlisten}
+    \begin{description}
+    \item[(IA_{1})] [] ist eine Liste (leere Liste)
+    \item[(IA_{2})] Sind $t_{1}$ bis $t_{n}$ Terme, dann ist $[t_{1},...,t_{n}]$ eine Liste.
+    \item[(IS)] Wenn $L$ eine Liste ist und $X$ ein Term, dann ist $[X|L]$ eine Liste.
+    \end{description}
+  \end{definition}
+\end{leftbar}
+\noindent
+Mit den Operatoren {\tt :-} (entspricht $\Leftarrow$) und {\tt ,} (entspricht $\vee$) können nun aus Prädikaten Klauseln gebildet werden. Ein Punkt ({\tt .}) schließt eine Klausel ab.
+
+Ein Beispiel für ein einfaches Prolog-Programm ist {\tt alle-kleiner}.
+
+\begin{verbatim}
+  alle-kleiner([],N).
+  alle-kleiner([F|R],N) :- F < N, alle-kleiner(R,N). 
+\end{verbatim}
+\noindent
+
+\section{Semantik}
+Das Programm {\tt alle-kleiner} beschreibt eine Relation zwischen Listen von Zahlen und einer Zahl $n$, die jeweils erfüllt ist, wenn alle Elemente der Liste kleiner sind als $n$. Für das Schlussfolgerungssystem ist dieses Programm nun eine Menge geschlossener Formeln (durch universellen Abschluss). Stellt man nun die Anfrage
+
+\begin{verbatim}
+  alle-kleiner([1,3,5],6).
+\end{verbatim}
+\noindent
+führt Prolog eine SLD-Resolution auf der Klauselmenge
+\begin{flalign*}
+\left \{ & \left \{ alle-kleiner(empty,x) \right \}^{1}, &\\
+         & \left \{ alle-kleiner(cons(f,r),x), \neg <\left ( f,x \right ), \neg alle-kleiner(r,x) \right \}^{2}, &\\
+         & \left \{ \neg alle-kleiner(cons(1,cons(3,cons(5,empty))),x) \right \}^{3} \left. \right \}
+\end{flalign*}
+\noindent
+durch. Die ersten beiden Klauseln ergeben sich aus dem Programm und werden als Stützmenge gewählt. Die dritte Klausel ergibt sich aus der negierten Behauptung und steht bereits als Elternklausel für den ersten Resolutionsschritt fest. Nun wird gemäß der Selektionsfunktion eine passende Klausel zur Resolution mit der Zielklausel gewählt.
+
+Die in Prolog verwendete Selektionsfunktion liefert dabei die gemäß der Reihenfolge im Programm erste Klausel, deren positives Literal sich mit dem ersten Literal der Zielklausel unifizieren lässt.
+
+In der Resolvente stehen die neuen Teilziele aus der Programmklausel stets vor den Teilzielen aus der Zielklausel. Kann das erste Teilziel der Zielklausel nicht mit einem positiven Literal einer Programmklausel unifiziert werden, wird ein Backtracking eingeleitet. Dazu wird die aktuelle Zielklausel verworfen und damit auch alle Variablenbelegungen aus der letzten Unifikation zurückgenommen. Dann wird nach einer alternativen Unifikationsmöglichkeit für das erste Teilziel gesucht.
+
+Ist das nächste Teilziel ein vordefiniertes Prädikat (wie z. B. {\tt <}), wird nicht nach einer passenden Zielklausel gesucht sondern eine Sonderbehandlung angestoßen, die eine neue Zielklausel liefert oder bei Nichterfüllung des Prädikats Backtracking auslöst.
+
+Die Suchstrategie von Prolog entspricht aufgrund der Reihenfolge der Teilzielauswertung einer Tiefensuche im SLD-Baum.
+
+\subsection{Unvollständigkeit von Prolog}
+Die Resolution nach der SLD-Strategie ist ein nichtdeterministisches Verfahren. In jedem Schritt liegen unter Umständen mehrere Ableitungsmöglichkeiten abhängig von
+
+\begin{itemize}
+\item der gewählten Programmklausel und
+\item des gewählten Teilziels
+\end{itemize}
+
+vor. Die in Prolog gewählte Selektionsfunktion und die forcierte Reihenfolge der Teilziele in der Zielklausel stellen zwar Determinismus sicher, sind aber auch Grund für die größte Schwäche von Prolog: die Unvollständigkeit des Schlussfolgerungssystems. \cite{beckstein}
+
+Jedes erfolgreiche Blatt im SLD-Baum, das hinter einem unendlichen Wurzelpfad liegt, ist effektiv unerreichbar. Wir betrachten folgendes Prolog Programm aus \cite{lloyd}:
+
+\begin{verbatim}
+p(a,b).
+p(c,b).
+p(X,Z) :- p(X,Y), p(Y,Z). -- transitivität
+p(X,Y) :- p(Y,X).         -- kommutativität
+\end{verbatim}
+\noindent
+Theoretisch sollte das Schlussfolgerungssystem die Anfrage
+
+\begin{verbatim}
+p(a,c).
+\end{verbatim}
+\noindent
+bejahen. Aufgrund der Selektionsfunktion wird Prolog jedoch stets eine Unifikation mit der dritten Klausel versuchen, da das positive Literal {\tt p(X,Z)} mit jeder Anfrage zum Prädikat {\tt p} unifizierbar ist. Für eine erfolgreiche Ableitung der leeren Klausel wird jedoch auch die vierte Klausel benötigt. Das Resultat ist ein Stackoverflow während der Lösungsfindung.
+
+Die Lösung dieses Problems war nicht teil der Aufgabenstellung. Das in dieser Arbeit entwickelte Schlussfolgerungssystem leidet also unter derselben Schwäche.

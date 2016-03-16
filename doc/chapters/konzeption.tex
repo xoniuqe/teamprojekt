@@ -1,0 +1,246 @@
+\chapter{Konzeption}\label{konzeption}
+
+In diesem Kapitel werden die entwickelten Grammatiken zur Beschreibung der Eingabesprache, die gewählte Methode zur Antwortbestimmung sowie die Algorithmen die das Schlussfolgerungssystem bilden beschrieben.
+
+\section{Beschreibungssprache}
+Das System verarbeitet Formeln definiert in einer formalen Sprache.
+
+Zur Beschreibung der Sprache wurden zwei kontextfreie Grammatiken definiert, die jeweils eine Ebene der Sprache beschreiben. Auf der obersten Ebene werden Programme als Folge von Hornklauseln in Regel- oder Faktendarstellung betrachtet. Prädikate samt ihrer Argumente werden dabei als ein Eingabesymbol betrachtet. Dies wird durch eine vorherige lexikalische Analyse ermöglicht, die den Eingabestring in Tokens zerlegt, und dabei die Argumente von Prädikaten als Property in den erzeugten Literal-Symbolen speichert.
+
+Auf der unteren Ebene werden Terme wie sie als Argumente von Prädikaten auftauchen geparst.
+
+\subsection{Lexikalische Analyse}
+Die Eingabe in den Lexer ist das vom Benutzer verfasste Programm als String. Mittels eines regulären Ausdrucks wird dieser String in die einzelnen Bausteine (sog. Tokens) des Programms zerlegt.
+
+\begin{leftbar}
+  \begin{definition}[CL-Reason Tokens]
+    \newline
+    Die in der lexikalischen Analyse zu identifizierenden Token sind Worte der Sprache
+    \begin{flalign*}
+      & \left \{ a,..,z \right \} \cup \left \{ forall,exists,and,<=,=>,:,. \right \} \cup \\
+      & \left \{  w(t) \; | \; w \in \left \{ a,...,z,A,...,Z,0,...,9 \right \}^{*}, t \in \left \{a,...,z,0,...,9,(,),, \right \}^{*} \right \} 
+    \end{flalign*}
+  \end{definition}
+\end{leftbar}
+
+Es ist anzumerken, dass die zu matchende Sprache nicht regulär ist. Moderne Regex-Engiens erlauben jedoch das verwenden von Lookaheads, wodurch eine Erkennung von korrekt geklammerten Prädikatsdeklarationen möglich ist. Die in Abschnitt \ref{proggram} definierte Grammatik für Programme legt fest, dass auf ein Prädikat entweder eine Implikation, eine Konjunktion oder das Ende der Klausel folgen muss. Aufgrund dieser Tatsache lässt dich mittels eine Lookaheads entscheiden, ob eine schließende Klammer tatsächlich ein Prädikat abschließt, oder noch zur Liste der Terme innerhalb des Prädikats gehört.
+
+\subsection{Grammatik für Programme}\label{proggram}
+Auf der obersten Ebene besteht ein Programm aus einer Folge von Hornklauseln in Regel- oder Faktendarstellung.
+
+\begin{leftbar}
+  \begin{definition}[$G_{cl-reason}$]\label{proggramdef}
+    \newline
+    Die kontextfreie Grammatik $G_{cl-reason} = \left ( \Sigma,N,P,S \right )$ mit
+    \begin{itemize}
+    \item $\Sigma = \left \{ forall, exists, and, in, end, var, lit, <= , => \rigth \}$,
+    \item $N = \left \{ S, V, K, F, F' \right \}$ und    
+    \end{itemize}
+    \begin{flalign*}
+      P: S & \rightarrow forall\; VKS\; |\; exists\; VKS\; |\; lit\; end\; S\; |\; \epsilon &\\
+      V & \rightarrow var\; V\; |\; var\; in &\\
+      K & \rightarrow lit\; <=\; F\; |\; lit\; and\; F'\; |\; lit\; end &\\
+      F & \rightarrow lit\; and\; F\; |\; lit\; end & \\
+      F' & \rightarrow lit\; and\; F\; |\; lit\; =>\; lit\; end\;
+    \end{flalign*}
+    \noindent
+    erzeugt alle gültigen Programme der Sprache CL-Reason
+  \end{definition}
+\end{leftbar}
+\noindent
+Das Alphabet $\Sigma$ enthält alle Token die in der vom Lexer erzeugten Ausgabe enthalten sein können. Ausgehend vom Startsymbol $S$ lässt sich eine beliebig lange Folge von Klauseln bestehend aus einer Variablendeklaration mit $forall$ oder $exists$ gefolgt von beliebig vielen Variablen und der eigentlichen Klausel in Fakt- oder Regeldarstellung erzeugen.
+
+Mit dem Nichtterminal $V$ lässt sich eine beliebig lange Folge von Variablen erzeugen.
+
+Das Nichtterminal $K$ leitet die Erzeugung einer Klausel in Regeldarstellung ein. Da sowohl links- als auch rechtsgerichtete Implikationen erlaubt sind, muss über die Unterscheidung zwischen den Nichtterminalen $F$ und $F'$ sichergestellt werden, dass Programme der Form
+
+\begin{verbatim}
+forall x: p(x) <= q(x) and s(x) => r(x).
+\end{verbatim}
+\noindent
+nicht erzeugt werden können.
+
+Die Frage nach der syntaktischen Korrektheit eines gegebenen Programms kann durch einen $LL(2)$ Parser beantwortet werden. Bei der Expansion eines Nichtterminal kann mit einem Lookahead von zwei Terminalsymbolen die zu wählende Produktion eindeutig bestimmt werden. Der Aufbau des Entwickelten Parser ist im Detail im Abschnitt \ref{progparser} beschrieben.
+
+\subsection{Grammatik für Terme}
+Ein Teil der Grammatik für Terme ergibt sich direkt aus der induktiven Definition von Termen aus Definition \ref{terme}. In CL-Reason wird für die Darstellung von Listen eine spezielle Syntax verwendet.
+
+\begin{leftbar}
+  \begin{definition}[Listen]
+    \newline
+    \begin{description}
+    \item[(IA)] Die Konstante $empty$ ist eine Liste (leere Liste).
+    \item[(IS)] Wenn $l$ eine Liste und $x$ eine Term ist, dann ist auch $cons(x,l)$ eine Liste.
+    \end{description}
+  \end{definition}
+\end{leftbar}
+\noindent
+Mit dieser induktiven Definition lassen sich beliebige Listenstrukturen als Terme gemäß von Definition \ref{terme} darstellen. Da diese Darstellung zur Formulierung von geschachtelten Listen unhandlich ist, können in CL-Reason Listen in der aus Prolog bekannten Syntax formuliert werden (Definition \ref{prologlisten}).
+
+Arithmetische Ausdrücke lassen sich in Infix-Notation formulieren. Dabei können die Operatoren $+$ (Addition), $-$ (Subtraktion), $*$ (Multiplikation) und $/$ (Division) verwendet werden. Des weiteren können arithmetische Ausdrücke beliebig geklammert werden.
+
+\begin{leftbar}
+  \begin{definition}[$G_{Terme}$]\label{termgram}
+    \newline
+    Die kontextfreie Grammatik $G_{Terme} = \left ( \Sigma,N,P,S \right )$ mit
+    \begin{itemize}
+    \item $\Sigma = \left \{ LB, RB, LS, CONS, LE, +, -, *, /, SEP, INT, SYM \rigth \}$,
+    \item $N = \left \{ S, T, A, F, L \right \}$ und    
+    \end{itemize}
+    \begin{flalign*}
+      P: S & \rightarrow LB\; T\; RB &\\
+      T & \rightarrow SYM\; |\; A\; |\; L\; |\; T\; SEP\; T\; |\; \epsilon &\\
+      A & \rightarrow A\; +\; A\; |\; A\; -\; A\; |\; A\; *\; A\; |\; A\; /\; A\; |\; LB\; A\; RB &\\
+      F & \rightarrow  SYM\; LB\; T\; RB\; &\\
+      L & \rightarrow LS\; T\; LE\; |\; LS\; SYM\; CONS\; SYM\; LE\; |\; LS\; SYM\; CONS\; L\; LE
+    \end{flalign*}
+    \noindent
+    erzeugt alle gültigen Terme.
+  \end{definition}
+\end{leftbar}
+\noindent
+Terme werden durch einen Bottom-Up Parser, der direkt aus der Grammatik generiert wurde, geparst (siehe Abschnitt \ref{termparser}).
+
+\section{Semantik}
+Die Semantik von CL-Reason entspricht der Semantik von Prolog. Der SLD-Baum wird entsprechend einer Tiefensuche nach einem Blatt durchsucht.
+
+Zur Bestimmung einer erfüllenden Variablenbelegung wird ein Antwortprädikat verwendet.
+
+\begin{leftbar}
+  \begin{definition}[Antwortprädikat]
+    \newline
+    Ein Antwortprädikat ist ein zu einer Zielklausel hinzugefügtes, positives Literal, das als Argumente alle in der Zielklausel vorkommenden Variablen enthält.
+  \end{definition}
+\end{leftbar}
+\noindent
+Aus der Anfrage
+\begin{verbatim}
+exists x y: p(x,y).
+\end{verbatim}
+\noindent
+entsteht also die initiale Zielklausel $\left \{ \neg p(x,y), answer(x,y) \rigth \}$.
+
+Da bei der SLD-Resolution an jedem Resolutionsschritt eine Goalklausel beteiligt ist, ist immer auch ein Antwortprädikat beteiligt. Das Ziel der Resolution ist nun nicht mehr die leere Klausel abzuleiten, sondern eine Klausel die nur noch das Antwortprädikat enthält. Die erfüllende Variablenbelegung kann dann in der Argumentliste des Antwortprädikats abgelesen werden.
+
+\section{Algorithmen}
+Die zentrale Operation des Schlussfolgerungssystems ist die Unifikation von Literalen. In jedem Schritt der Lösungsfindung legt die SLD-Strategie fest, zwischen welchen Klauseln eine Unifikation durchgeführt werden soll, und was bei Nichterfolg zu tun ist.
+
+In diesem Schritt werden der verwendete Unifikationsalgorithmus sowie der Resolutionsalgorithmus nach SLD-Strategie beschrieben.
+
+\subsection{Unifikationsalgorithmus}\label{unialg}
+Die Unifikation von Literalen wurde im Abschnitt \ref{res} auf die Unifikation von Termen zurückgeführt. Der verwendete Unifikationsalgorithmus ist eine rekursive Variante des Unifikationsalgorithmus für Termlisten nach \cite{Robinson}.
+
+Wir betrachten zunächst die Komposition zweier idempotenter Substitutionen.
+
+\begin{leftbar}
+  \begin{definition}[Komposition von Substitutionen]
+    \newline
+    Seien
+    \begin{eqnarray}
+      \sigma = \left \{ x_1 \leftarrow s_1,...,x_n \leftarrow s_n\right \} \\
+      \tau = \left \{ y_1 \leftarrow t_1,...,y_m \leftarrow t_m \right \}
+    \end{eqnarray}
+    zwei Substitutionen, sodass
+    \begin{equation}
+      \left \{ x_1,...,x_n\right \} \cap \left \{ y_1,...,y_m\right \} = \emptyset
+    \end{equation}
+    Dann ist
+    \begin{equation}
+      \sigma \circ \tau = \left \{ x_1 \leftarrow \tau s_1,...,x_n \leftarrow \tau s_n \right \} \cup \tau
+    \end{equation}
+  \end{definition}
+\end{leftbar}
+\noindent
+Der folgende Algorithmus liefert den mgu für zwei Termlisten $s = (s_1,...,s_n)$ und $t = (t_1,...,t_n)$.
+
+\begin{small}
+\[ unify(s,t,\sigma)=_{def}
+  \begin{cases}
+    \sigma    & \quad length(s) = length(t) = 0\\
+    unify(rest(s),rest(t),\sigma) & \quad \sigma s_1 = \sigma t_1\\
+    unify(rest(s),rest(t),\sigma \circ \left \{ \sigma s_1 \leftarrow \sigma t_1 \right \})  & \quad \sigma s_1 \text{ oder } \sigma t_1 \text{ ist Variable (o.B.d.A sei }\\
+    & \quad \sigma s_1 \text{ Variable) und } \sigma s_1 \text{ kommt nicht in } \sigma t_1 \text{ vor}\\
+    unify(rest(s),rest(t),\sigma \circ \tau)  & \quad \sigma s_1 = f(x_1,...,x_m) \text{ und } \sigma t_1 = (y_1,...,y_m) \\
+    & \quad \text {und } \tau = unify((x_1,...,x_m)(y_1,...,y_m),\left \{ \right \}) \neq fail\\
+    fail & \quad \text{sonst}
+  \end{cases}
+  \]
+\end{small}
+
+\subsection{SLD-Resolutionsalgorithmus}\label{sld-res}
+Wie bereits im Kapitel \ref{prolog} beschrieben, ist eine extreme Einschränkung der Auswahlmöglichkeiten in jedem Resolutionschritt nötig, um die SLD-Resolution deterministisch implementierbar zu machen. Auch in diesem System werden Programmklauseln anhand ihrer Position im Programm ausgewählt. Neu entstandene Teilziele werden vorne in die Resolvente eingefügt und direkt im nächsten Resolutionsschritt bearbeitet. Der Algorithmus entspricht also einer Tiefensuche im SLD-Baum.
+
+Wir entwickeln den Algorithmus anhand eines Beispiels. Sei folgendes CL-Reason Programm gegeben.
+
+\begin{verbatim}
+q(3).
+s(4).
+p([]).
+forall f r: p([f|r]) <= q(f) and p(r).
+forall f r: p([f|r]) <= s(f) and p(r).
+\end{verbatim}
+\noindent
+
+Anfragen an das Prädikat {\tt p} liefern {\tt true}, wenn alle Elemente der als Argument übergebenen Liste entweder Dreien oder Vieren sind. Wird nun die Anfrage
+
+\begin{verbatim}
+p([3,4]).
+\end{verbatim}
+\noindent
+
+gestellt, wird eine SLD-Resolution auf der Klauselmenge
+
+\begin{flalign*}
+\left \{ & \left \{ q(3) \right \}^{1}, &\\ 
+         & \left \{ s(4)\rightt \}^{2}, &\\ 
+         & \left \{ p(empty) \right \}^{3}, &\\
+         & \left \{ p(cons(f,r), \neg q(f), \neg p(r) \right \}^{4}, &\\
+         & \left \{ p(cons(f,r), \neg s(f), \neg p(r) \right \}^{5}, &\\
+         & \left \{ \neg p(cons(3,cons(4,empty))) \right \}^{6} \rigth \}
+\end{flalign*}
+\noindent
+angestoßen. Klausel sechs ist dabei die erste Zielklausel.
+
+Wie in der Tiefensuche üblich, werden die zu expandierenden Knoten auf einen Stack gelegt. Da das erzeugen von Resolventen der aufwendigste Schritt in diesem Algorithmus ist, wird immer nur eine Resolvente erzeugt und diese direkt als neue Goalklausel betrachtet. 
+
+Um an jedem inneren Knoten des Baumes die nächste Ableitung bestimmen zu können, werden die potenziell zum ersten Teilziel passenden Programmklauseln auf einem Stack gelegt. Wir bezeichnen diesen Stack als aktuelle Prozedur. Diese Prozedur wird dann auf einen Stack von Prozeduren gelegt, dessen Zweck nach dem nächsten Schritt deutlich wird. Abbildung \ref{algostate1} zeigt die Startkonfiguration.
+
+\begin{figure} %[hbtp]
+	\centering
+		\includegraphics[scale=.9]{/home/steven/dev/lisp/cl-reason/doc/images/algostate_1.png}
+	\caption{Startkonfiguration des Algorithmus}
+	\label{algostate1}
+\end{figure}
+
+Nun werden der Reihe nach Unifikationen mit den Programmklauseln der aktuellen Prozedur versucht. Die erste erfolgreiche Unifikation findet mit Klausel vier statt. Die daraus resultierende Resolvente wird auf den Stack der Goalklauseln gelegt. Sollte eines der Teilziele in dieser Goalklausel nicht gelöst werden können, gelangen wir durch Backtracking (entfernen von Goalklauseln vom Stack) wieder zur ersten Goalklausel. An dieser Stelle muss bekannt sein, mit welchen Programmklauseln bereits eine Unifikation versucht wurde. Zu diesem Zweck legen wir die aktuelle Prozedur auf einen Stack. Auf diesen Stack wird nach der Ableitung einer neuen Klausel auch direkt die zum ersten Teilziel der Resolvente passende Prozedur gelegt. Die Abbildung \ref{algostate2} verdeutlicht die neue Konfiguration.
+
+\begin{figure} %[hbtp]
+	\centering
+		\includegraphics[scale=.9]{/home/steven/dev/lisp/cl-reason/doc/images/algostate_2.png}
+	\caption{Konfiguration nach der ersten Ableitung}
+	\label{algostate2}
+\end{figure}
+
+Nun werden erneut Unifikationen zwischen dem ersten Teilziel $\neg q(3)$ und den Programmklauseln der obersten Prozedur versucht. Dies gelingt und es entsteht die Resolvente $\left \{ \neg p(cons(4,empty))\right \}$. Die neue Zielklausel wird auf den Stack der Zielklauseln gelegt und die zum ersten Teilziel $\neg p(cons(4,empty))$ passende Prozedur wird auf den Prozedurenstack gelegt.
+
+Dieses Verfahren wird fortgesetzt, bis es zur in Abbildung \ref{algostate3} gezeigten Situation kommt.
+
+\begin{figure} %[hbtp]
+	\centering
+		\includegraphics[scale=.9]{/home/steven/dev/lisp/cl-reason/doc/images/algostate_3.png}
+	\caption{Konfiguraton vor erstem Backtracking}
+	\label{algostate3}
+\end{figure}
+
+Das durch die Resolution der Klauseln acht und vier eingeführte Teilziel $\neg q(4)$, kann nicht durch die Programmklauseln in der obersten Prozedur gelöst werden. Eine leere Prozedur auf dem Prozedurenstack ist das Signal zum Backtracking, da dies nur in Situationen auftritt, in denen ein Teilziel nicht durch das Programm gelöst werden kann. Nun wird sowohl die oberste Prozedur als auch die oberste Goalklausel verworfen und das Verfahren mit den neuen obersten Objekten beider Stacks vorgesetzt. Als nächstes wird also nach einer alternativen Ableitung für Klausel acht gesucht. Dies gelingt mit der Klausel fünf und es entsteht die Situation in Abbildung \ref{algostate4}.
+
+\begin{figure} %[hbtp]
+	\centering
+		\includegraphics[scale=.9]{/home/steven/dev/lisp/cl-reason/doc/images/algostate_4.png}
+	\caption{Konfiguraton nach finden einer alternativen Ableitung}
+	\label{algostate4}
+\end{figure}
+
+Nun kann das Verfahren ohne weiteres Backtracking fortgesetzt werden. Durch die zweite Klausel kann das Teilziel $\neg s(4)$ aufgelöst werden und durch Klausel drei schließlich das Teilziel $\neg p(empty)$. Der Algorithmus bricht mit {\tt FAIL} ab, wenn der Prozedurenstack leer ist.
+
+Die Implementierung dieses Verfahren stellt den Kern des Schlussfolgerungssystems dar.
