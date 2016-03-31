@@ -1,4 +1,4 @@
-;(cd #P"C:/Users/Tobias/Documents/Lisp/cl-reason/src/")
+;(cd #P"C:/Users/Tobias/Documents/Studium/Teamprojekt/cl-reason/src/")
 
 (load "init")
 (load "util/util")
@@ -9,7 +9,7 @@
 
 ; zeug zum testen und für schöne ausgabe
 
-(setq file-path "../test/test_pred.clr")
+(setq file-path "../test/test.clr")
 
 (setq liste (first (resolution:run-program file-path)))
 
@@ -19,9 +19,4 @@
 ;         (while line do (write-line line))
 ;     (close in)))
 
-(mapcar (lambda(x) 
-;(list 
-(get (first x) 'resolution::name)
-;(get (second x) 'resolution::name)
-;)
-) liste)
+(mapcar (lambda(x) (get (first x) 'resolution::name)) liste)

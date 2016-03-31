@@ -335,32 +335,24 @@
 	;; (setq program-stack (list (mapcar 'copy-clause (extract-procedure program (get cur-subgoal 'name)))))
 	)
        ((not program-stack) 'fail)
+	   (print "program-stack")
+	   (print program-stack)
        (let ((cur-procedure (car program-stack)))
-;Hier wird geprï¿½ft ob die aktuelle Klausel ein Prï¿½dikat ist, dazu wird, das pos-lit genommen und geprï¿½ft ob es zu den vordefinierten prï¿½dikaten gehï¿½rt
+;Hier wird geprüft ob die aktuelle Klausel ein Prädikat ist, dazu wird, das pos-lit genommen und geprüft ob es zu den vordefinierten prädikaten gehört
          (print "cur-procedure:")
 	   (setq poslit-to-check (get (first cur-procedure) 'parser:pos-lit))
            (print  cur-procedure)
-		   (print "pos lit:")
-           (print (get poslit-to-check 'lexer:name))
-           (print (get poslit-to-check 'lexer:args))
-		   ;(if (string= (get poslit-to-check 'lexer:name) "iststeven") (setf (get (first cur-procedure) 'parser:pos-lit) nil) (print "pos ok"))
-           ;(setf (get (first cur-procedure) 'parser:neg-lits nil)
-		   (print "checking neglits")
-           (setq neglits-to-check (get (first cur-procedure) 'parser:neg-lits))
-(mapcar (lambda (lit)
-                     (print (get lit 'lexer:name))
-                     (print (get lit 'lexer:args))
- ) neglits-to-check)
-			
-			 (setq neglits (remove-if #'(lambda (element) (string= (get element 'lexer:name) "iststeven")) neglits-to-check))
-		(mapcar (lambda (lit)
-                     (print (get lit 'lexer:name))
-                     (print (get lit 'lexer:args))
- ) neglits)
-
-		(setf (get (first cur-procedure) 'parser:neg-lits) neglits)
-	
-           
+           ; (print (get poslit-to-check 'lexer:name))
+           ; (print (get poslit-to-check 'lexer:args))
+           ; (setq neglits-to-check (get (first cur-procedure) 'parser:neg-lits))
+           ; (mapcar (lambda (lit)
+                     ; (print (get lit 'lexer:name))
+                     ; (print (get lit 'lexer:args))
+ ; ) neglits-to-check)
+           ; (setf (get 'cur-procedure 'parser:neg-lits) nil)
+		   
+		   (print "cur-subgoal")
+		   (print cur-subgoal)
           ; (print (get neglit-to-check 'lexer:name))
           ; (print (get neglit-to-check 'lexer:args))
 
@@ -369,8 +361,8 @@
 	     (progn ;; Backtracking
 	       (setq goals (cdr goals))
 	       (setq program-stack (cdr program-stack))
-        ;  (print "program-stack")
-          ; (print program-stack)
+          (print "program-stack")
+           (print program-stack)
 )
  
 	   (let* ((next-lit (get (car cur-procedure) 'pos-lit))

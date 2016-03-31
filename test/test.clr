@@ -1,0 +1,7 @@
+q(3).
+s(4).
+p([]).
+forall f r: p([f|r]) <= q(f) and p(r).
+forall f r: p([f|r]) <= s(f) and p(r).
+
+exists x: q(x).

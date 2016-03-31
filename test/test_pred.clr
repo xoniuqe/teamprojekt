@@ -1,0 +1,4 @@
+abc(ich).
+forall x: test(x) <= abc(x) and iststeven(x). 
+
+exists x: test(x).

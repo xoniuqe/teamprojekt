@@ -7,9 +7,9 @@
 (load "logik/resolution")
 
 
-; zeug zum testen und für schöne ausgabe
+; zeug zum testen und fÃ¼r schÃ¶ne ausgabe
 
-(setq file-path "../test/test_pred.clr")
+ (setq file-path "../test/test_pred.clr")
 
 (setq liste (first (resolution:run-program file-path)))
 
