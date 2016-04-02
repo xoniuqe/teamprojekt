@@ -319,6 +319,53 @@
 ;; (setq program (car input))
 ;; (setq goal (car (cadr input)))
 
+(defun check-for-predefined-predicates (cur-procedure)
+	(let* ((pos-lit (get (first cur-procedure) 'parser:pos-lit))
+		   (neg-lits (get (first cur-procedure) 'parser:neg-lits))
+		   (predefined (remove-if-not 'is-predefined-predicate neg-lits))
+		   (evaluated (remove-if-not 'eval-predefined-predicate predefined))
+		)
+		;(mapcar 'print neg-lits)
+;;(mapcar 'print predefined)
+		;(mapcar 'print evaluated)
+		;	(print "set without")
+		;(setf without-predicates (remove-if #'is-predefined-predicate neg-lits))
+	;	(print "neg-lits")
+	;	(print neg-lits)
+	;	(print "without")
+	;	(print without-predicates)
+		(setf (get (first cur-procedure) 'parser:neg-lits) without-predicates)
+
+		(setf returnv (if (eq (list-length predefined) (list-length evaluated)) cur-procedure NIL))
+	
+		
+	)
+)
+
+
+
+(defun check-eval-predefined-predicate(lit)
+	(print "check-eval")
+	;;(if (and (is-predefined-predicate lit) (eval-predefined-predicate lit) T NIL))
+	(if (is-predefined-predicate lit) (if (eval-predefined-predicate lit) T NIL) T)
+)
+
+(defun is-predefined-predicate (lit)
+	(cond ((string= (get lit 'lexer:name) "iststeven") T)
+		  (T NIL))
+)
+
+(defun eval-predefined-predicate (lit)
+	(if ( and (string= (get lit 'lexer:name) "iststeven") (string=  (get (get lit'lexer:var) 'lexer:name) "steven")) T NIL)
+	;(cond ((not lit) NIL) (T T))
+)
+
+;  (setq path "../test/test_pred.clr")
+; (setq input (multiple-value-list (split-prog-from-goals (parse-file path))))
+; (set program (car input))
+; (set goal (cadr input))
+
+
 ;; program is the list of prog-clauses
 ;; Goal is a clause with the pos-lit "answer(x1,...,xn)"
 ;; where xi is a variable in the goal
@@ -335,34 +382,18 @@
 	;; (setq program-stack (list (mapcar 'copy-clause (extract-procedure program (get cur-subgoal 'name)))))
 	)
        ((not program-stack) 'fail)
-	   (print "program-stack")
-	   (print program-stack)
+	 ;  (print program-stack)
        (let ((cur-procedure (car program-stack)))
-;Hier wird geprüft ob die aktuelle Klausel ein Prädikat ist, dazu wird, das pos-lit genommen und geprüft ob es zu den vordefinierten prädikaten gehört
-         (print "cur-procedure:")
-	   (setq poslit-to-check (get (first cur-procedure) 'parser:pos-lit))
-           (print  cur-procedure)
-           ; (print (get poslit-to-check 'lexer:name))
-           ; (print (get poslit-to-check 'lexer:args))
-           ; (setq neglits-to-check (get (first cur-procedure) 'parser:neg-lits))
-           ; (mapcar (lambda (lit)
-                     ; (print (get lit 'lexer:name))
-                     ; (print (get lit 'lexer:args))
- ; ) neglits-to-check)
-           ; (setf (get 'cur-procedure 'parser:neg-lits) nil)
-		   
-		   (print "cur-subgoal")
-		   (print cur-subgoal)
-          ; (print (get neglit-to-check 'lexer:name))
-          ; (print (get neglit-to-check 'lexer:args))
+;Hier wird geprï¿½ft ob die aktuelle Klausel ein Prï¿½dikat ist, dazu wird, das pos-lit genommen und geprï¿½ft ob es zu den vordefinierten prï¿½dikaten gehï¿½rt
 
+					
 	 ;; (setq cur-procedure (car program-stack))
 	 (if (not cur-procedure)
 	     (progn ;; Backtracking
 	       (setq goals (cdr goals))
 	       (setq program-stack (cdr program-stack))
-          (print "program-stack")
-           (print program-stack)
+        ;  (print "program-stack")
+          ; (print program-stack)
 )
  
 	   (let* ((next-lit (get (car cur-procedure) 'pos-lit))
@@ -370,10 +401,6 @@
 		  (unifier (unify-literals cur-subgoal next-lit))
 		  ;; (setq unifier (unify-literals cur-subgoal next-lit))
 		  )
-             (print "next-lit")
-             (print next-lit)
-             (print "unifier")
-             (print unifier)
 	     (cond ((equal unifier 'fail)
 		    (setq program-stack (update-ps program-stack)))
 		   (T (let* ((resolvent
@@ -398,6 +425,8 @@
     (mapcar (lambda (goal)
 	      (sld-resolution program goal))
 	    goals)))
+		
+
 
 ;;; (run-program "/home/steven/dev/lisp/cl-reason/test/test_prog.clr")
 ;;; (run-program "/home/steven/dev/lisp/cl-reason/test/test_prog_2.clr")

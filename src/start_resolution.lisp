@@ -4,12 +4,14 @@
 (load "util/util")
 (load "parser/lexer")
 (load "parser/parser")
+(load "predicates/predicates")
 (load "logik/resolution")
+
 
 
 ; zeug zum testen und für schöne ausgabe
 
-(setq file-path "../test/test_pred.clr")
+ (setq file-path "../test/test_pred2.clr")
 
 (setq liste (first (resolution:run-program file-path)))
 
@@ -25,3 +27,18 @@
 ;(get (second x) 'resolution::name)
 ;)
 ) liste)
+
+(setq pred (resolution:predicates-test))
+(get pred 'resolution::name)
+(funcall pred "test")
+
+(setf func (get pred 'resolution::func))
+
+(eval 'func)
+
+(let (sym (gensym "bla"))
+
+(setf (symbol-function sym) (predicates:load-predicate "../predicates/issteven.pred"))
+(funcall (eval test) "steven")
+
+)

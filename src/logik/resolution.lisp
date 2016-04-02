@@ -1,7 +1,9 @@
 (defpackage :resolution
-  (:use :common-lisp :util :parser :lexer)
+  (:use :common-lisp :util :parser :lexer :predicates)
   (:export :unify)
-  (:export :run-program))
+  (:export :run-program)
+  (:export :predicates-test)
+  )
 
 (in-package :resolution)
 
@@ -81,6 +83,7 @@
 ;; (setq lit1 cur-subgoal)
 ;; (setq lit2 next-lit)
 (defun unify-literals (lit1 lit2) 
+;(print "unify-literals")
   (let ((name1 (get lit1 'name))
 	(name2 (get lit2 'name))
 	(args1 (mapcar 'copy-term-symbol (get lit1 'args)))
@@ -254,6 +257,10 @@
     sym))
 
 (defun extract-procedure (program pname)
+	;(print "extract-procedure")
+	;(print program)
+	;(print pname)
+	;
   (remove-if (lambda (x)
 	       (not (string= pname (get (get x 'pos-lit) 'name))))
 	     program))
@@ -290,6 +297,7 @@
 ;; (setq goal-clause cur-goal-clause)
 ;; (setq prog-clause (car cur-procedure))
 (defun calc-resolvent (unifier goal-clause prog-clause)
+;(print "calc-resolvent")
   (let ((new-subgoals (get prog-clause 'neg-lits))
 	;; (setq new-subgoals (get prog-clause 'neg-lits))
 	(sym (gensym "clause-"))
@@ -311,6 +319,7 @@
 
 ;; removes the first element of the first element
 (defun update-ps (progstack)
+	;(print "update-ps")
   (cons (cdr (car progstack))
 	(cdr progstack)))
 
@@ -319,10 +328,112 @@
 ;; (setq program (car input))
 ;; (setq goal (car (cadr input)))
 
+(defun check-for-predefined-predicates (cur-procedure)
+	(let* ((pos-lit (get (first cur-procedure) 'parser:pos-lit))
+		   (neg-lits (get (first cur-procedure) 'parser:neg-lits))
+		 ;  (predefined (remove-if-not 'is-predefined-predicate neg-lits))
+		  ; (evaluated (remove-if-not 'eval-predefined-predicate predefined))
+		)
+	
+		;(setf without-predicates (remove-if #'is-predefined-predicate neg-lits))
+
+		;(setf (get (first cur-procedure) 'parser:neg-lits) without-predicates)
+
+		;(setf returnv (if (eq (list-length predefined) (list-length evaluated)) cur-procedure NIL))
+		;(print (first (get pos-lit 'lexer:args)))
+		;(print pos-lit)
+		;(print "is const:")
+		;(print (term-is-const(first (get pos-lit 'lexer:args))))
+		
+	;	(setq neg-lits (remove-if (
+	;		lambda (lit) 
+	;			(if (and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
+	;				(if (not (eval-predicate (get lit 'lexer:name)  (first (get lit 'lexer:args))))
+	;					NIL
+	;					T
+	;				)
+	;			NIL)
+	;	) neg-lits))
+	;	(setf (get (first cur-procedure) 'parser:neg-lits) neg-lits)
+	;	
+	;	(if (and (is-predefined-predicate pos-lit) (term-is-const (first (get pos-lit 'lexer:args))))
+	;		(if (not (eval-predicate (get pos-lit 'lexer:name)  (first (get pos-lit 'lexer:args))))
+	; 		(return-from check-for-predefined-predicates nil)
+	;			(setf (get pos-lit 'parser:pos-lit) nil)
+;			)
+		;	(print "no predicate or const")
+	;	)
+	;	(print "returning")
+		;(print cur-procedure)
+		(setq tmp (remove-if #'is-predefined-predicate neg-lits))
+		;(print "TMP")
+		;(print tmp)
+		;(print (get (first cur-procedure) 'parser:neg-lits))
+		(setf (get (first cur-procedure) 'parser:neg-lits) tmp)
+		(if (is-predefined-predicate pos-lit)
+			(setf (get (first cur-procedure)  'parser:pos-lit) nil))
+		(return-from check-for-predefined-predicates cur-procedure)
+	)
+)
+
+
+
+
+
+(defun check-eval-predefined-predicate(lit)
+	;(print "check-eval")
+	;;(if (and (is-predefined-predicate lit) (eval-predefined-predicate lit) T NIL))
+	(if (is-predefined-predicate lit) (if (eval-predefined-predicate lit) T NIL) T)
+)
+
+(defun is-predefined-predicate (lit)
+	;(print "is-predefined-predicate")
+	(cond ((string= (get lit 'lexer:name) "iststeven") T)
+		  ((string= (get lit 'lexer:name) "print") T)
+		  (T NIL))
+)
+
+(defun eval-predicate (pred-name literals)
+	;(print "eval-predicate");;demo
+	;(print literals)
+	(setq check-value (first literals)) ;; demo
+	(cond 
+		((and (string= pred-name "iststeven") (string-equal (get check-value 'lexer:name) "steven")) T)
+		((string= pred-name "print") (progn (print (get check-value 'lexer:name)) T))
+		(T NIL)
+	)
+)
+
+(defun eval-predefined-predicate (lit)
+	(if ( and (string= (get lit 'lexer:name) "iststeven") (string=  (get (get lit'lexer:var) 'lexer:name) "steven")) T NIL)
+	(if (string= (get lit 'lexer:name) "print") (progn (print  (get (get lit'lexer:var) 'lexer:name)) T) NIL)
+	;(cond ((not lit) NIL) (T T))
+)
+
+(defun predicates-test () 
+	(let ((sym (gensym "PRED-")))
+		(import sym)
+		(setf (get sym 'name) "issteven")
+		(setf (symbol-function sym) (lambda (x) (string= x "steven")))
+		sym
+	)
+)
+
+(defun literal-list-is-const (literals)
+	(remove-if (lambda (lit) (term-is-const (first (get lit 'lexer:args)))) literals)
+)
+
+;  (setq path "../test/test_pred.clr")
+; (setq input (multiple-value-list (split-prog-from-goals (parse-file path))))
+; (setq program (car input))
+; (setq goal (first (cadr input)))
+
+
 ;; program is the list of prog-clauses
 ;; Goal is a clause with the pos-lit "answer(x1,...,xn)"
 ;; where xi is a variable in the goal
 (defun sld-resolution (program goal)
+;(print program)
   (do* ((goals (list (prepare-goal goal)))
 	;; (setq goals (list (prepare-goal goal)))
 	(cur-goal-clause (copy-clause (car goals))
@@ -335,42 +446,20 @@
 	;; (setq program-stack (list (mapcar 'copy-clause (extract-procedure program (get cur-subgoal 'name)))))
 	)
        ((not program-stack) 'fail)
+	 ;  (print program-stack)
        (let ((cur-procedure (car program-stack)))
 ;Hier wird gepr�ft ob die aktuelle Klausel ein Pr�dikat ist, dazu wird, das pos-lit genommen und gepr�ft ob es zu den vordefinierten pr�dikaten geh�rt
-         (print "cur-procedure:")
-	   (setq poslit-to-check (get (first cur-procedure) 'parser:pos-lit))
-           (print  cur-procedure)
-		   (print "pos lit:")
-           (print (get poslit-to-check 'lexer:name))
-           (print (get poslit-to-check 'lexer:args))
-		   ;(if (string= (get poslit-to-check 'lexer:name) "iststeven") (setf (get (first cur-procedure) 'parser:pos-lit) nil) (print "pos ok"))
-           ;(setf (get (first cur-procedure) 'parser:neg-lits nil)
-		   (print "checking neglits")
-           (setq neglits-to-check (get (first cur-procedure) 'parser:neg-lits))
-(mapcar (lambda (lit)
-                     (print (get lit 'lexer:name))
-                     (print (get lit 'lexer:args))
- ) neglits-to-check)
-			
-			 (setq neglits (remove-if #'(lambda (element) (string= (get element 'lexer:name) "iststeven")) neglits-to-check))
-		(mapcar (lambda (lit)
-                     (print (get lit 'lexer:name))
-                     (print (get lit 'lexer:args))
- ) neglits)
-
-		(setf (get (first cur-procedure) 'parser:neg-lits) neglits)
-	
-           
-          ; (print (get neglit-to-check 'lexer:name))
-          ; (print (get neglit-to-check 'lexer:args))
+		;(print program-stack)
+		;(print cur-procedure)	
+		;(print "next clause")
+		;(setq cur-procedure (check-for-predefined-predicates cur-procedure))
 
 	 ;; (setq cur-procedure (car program-stack))
 	 (if (not cur-procedure)
 	     (progn ;; Backtracking
 	       (setq goals (cdr goals))
 	       (setq program-stack (cdr program-stack))
-        ;  (print "program-stack")
-          ; (print program-stack)
+	;	(print "back-tracking")
 )
  
 	   (let* ((next-lit (get (car cur-procedure) 'pos-lit))
@@ -378,10 +467,6 @@
 		  (unifier (unify-literals cur-subgoal next-lit))
 		  ;; (setq unifier (unify-literals cur-subgoal next-lit))
 		  )
-             (print "next-lit")
-             (print next-lit)
-             (print "unifier")
-             (print unifier)
 	     (cond ((equal unifier 'fail)
 		    (setq program-stack (update-ps program-stack)))
 		   (T (let* ((resolvent
@@ -390,13 +475,31 @@
 			     (neg-literals (get resolvent 'neg-lits))
 			     ;; (setq neg-literals (get resolvent 'neg-lits))
 			     )
+				 ;(print neg-literals)
+	;; hiermit wird das program auch dann beendet wenn nur diese eine clausel auf das prädikat zutrifft
+				(setf neg-literals (remove-if (lambda (lit) 
+				;;lexer:args enthält eine liste der literale, diese müssen mit einer schleife getestet werden ob jedes const ist
+				;; dann mus diese liste an eval-predicate gereicht werden
+				(if (is-predefined-predicate lit);(and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
+					(if (not (eval-predicate (get lit 'lexer:name)   (get lit 'lexer:args)))
+						NIL
+						T
+					)
+				NIL)) neg-literals))
+				
+			;	(print "neg-literals")
+			;	(print neg-literals)
+	;			 (print "resolvente:")
+		;		 (print resolvent)
 			(if (not neg-literals)
 			    (return (list (get goal 'vars) (get (get resolvent 'pos-lit) 'args)))
 			  (progn (setq goals (cons resolvent goals))
+			;	(print "resoliertes goal")
+			;	(print goals)
 				 (setq program-stack
 				       (cons (mapcar 'copy-clause
 						     (extract-procedure program
-									(get (car (get (car goals) 'neg-lits)) 'name)))
+									(get (car (get (car goals) 'neg-lits)) 'name))) ;;nächste clausel wird ausgewählt, nach dem namen des ersten negativen literals des (resolierten) ziels
 					     (update-ps program-stack)))))))))))))
 
 (defun run-program (path)
@@ -406,6 +509,8 @@
     (mapcar (lambda (goal)
 	      (sld-resolution program goal))
 	    goals)))
+		
+
 
 ;;; (run-program "/home/steven/dev/lisp/cl-reason/test/test_prog.clr")
 ;;; (run-program "/home/steven/dev/lisp/cl-reason/test/test_prog_2.clr")
