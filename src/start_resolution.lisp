@@ -42,3 +42,5 @@
 (funcall (eval test) "steven")
 
 )
+
+(predicates:load-predicate "../predicates/issteven.pred")

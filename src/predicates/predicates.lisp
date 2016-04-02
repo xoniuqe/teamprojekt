@@ -11,6 +11,11 @@
 )
 
 (defun load-predicate (path)
-	(load path)
-	;(util:read-file-to-string path)
+	;(load path)
+	(let ((lisp-printed-string
+       (with-output-to-string (*standard-output*)
+         (eval (read path t t t)))))
+  ;; concatenate the lisp printed string onto your 
+  ;; hand parsed string here
+  )
 )
