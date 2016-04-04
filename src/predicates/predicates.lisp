@@ -5,7 +5,9 @@
   (:export :setup-predicates)
   (:export :get-predicate)
   (:export :get-predicate-func)
-  (:export :is-predefined-predicate2)
+  (:export :is-predefined-predicate)
+  (:export :eval-predicate)
+  (:export :add-predicate)
  )
 
 (in-package :predicates)
@@ -13,36 +15,20 @@
 (defvar *predicates*)
 
 (defun load-predicates (path)
-	
+	(mapcar 'load-predicate path)
 )
 
 (defun load-predicate (path)
-	(dateilesen path)
-)
-
-;;Move to utils
-(defun dateilesen (dateiname)
-  (do* ((streamin (open dateiname))
-        exprs
-        (expr (read streamin nil 'eof)
-              (read streamin nil 'eof)))
-       ((equal expr 'eof) (close streamin)
-        (nreverse exprs))
-    (setq exprs (cons expr exprs)))) 
-	
-(defun predicates-test () 
-	(let ((sym (gensym "PRED-")))
-		(import sym)
-		(setf (get sym 'name) "issteven")
-		(setf (get sym 'func) (lambda (x) (string= x "steven")))
-		sym
+	;(print (list "path" path))
+	(let ((content (dateilesen path))
+		  (pred-name (pathname-name path)))
+		
+		(add-predicate pred-name (eval (first content)))	
 	)
 )
 
-
 (defun setup-predicates ()
 	(setq *predicates* (list ))
-	(add-predicate "iststeven" (lambda (v) (string-equal v "steven")))
 )
 
 (defun add-predicate(pred-name pred-func)
@@ -62,13 +48,26 @@
 	(get (get-predicate pred-name) 'func)
 )
 
-(defun is-predefined-predicate2 (lit)
+(defun is-predefined-predicate (lit)
 	(if (get-predicate (get lit 'lexer:name)) T NIL)
 )
 
 (defun eval-predicate (pred-name args)
 	(if (get-predicate pred-name) 
-		(apply (get-predicate-func pred-name) args)
+		 (let ((proc-args (mapcar (lambda (arg) (get arg 'lexer:name)) args)))
+		 	(apply (get-predicate-func pred-name) proc-args)
+		 )
 		NIL
 	)
 )
+
+;;Move to utils
+(defun dateilesen (dateiname)
+  (do* ((streamin (open dateiname))
+        exprs
+        (expr (read streamin nil 'eof)
+              (read streamin nil 'eof)))
+       ((equal expr 'eof) (close streamin)
+        (nreverse exprs))
+    (setq exprs (cons expr exprs)))) 
+	

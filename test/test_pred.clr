@@ -1,8 +1,9 @@
 abc(ich).
-abc(penis).
+abc(test).
 abc(steven).
-forall x: test(x) <= abc(x) and def(x).
-forall x: test(x) <= iststeven(x) and iststeven(x). 
+def(steven).
+ghi(steven).
 
+forall x: test(x) <= abc(x) and def(x) and ghi(x). 
 
-exists x: test(steven).	
+exists x: test(x).	

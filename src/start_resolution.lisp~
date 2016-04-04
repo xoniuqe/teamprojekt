@@ -11,11 +11,7 @@
 
 ; zeug zum testen und für schöne ausgabe
 
-(setq file-path "../test/test_pred3.clr")
-
-(predicates:setup-predicates )
-(setq folder (directory "../predicates/*.pred"))
-(predicates:load-predicates folder)
+ (setq file-path "../test/test_pred2.clr")
 
 (setq liste (first (resolution:run-program file-path)))
 
@@ -26,7 +22,10 @@
 ;     (close in)))
 
 (mapcar (lambda(x) 
-(mapcar (lambda (y) (get y 'resolution::name)) x)
+;(list 
+(get (first x) 'resolution::name)
+;(get (second x) 'resolution::name)
+;)
 ) liste)
 
 

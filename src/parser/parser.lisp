@@ -98,6 +98,7 @@
 
 (defun la-check (la match)
   (let ((new-la (mapcar 'symbol-value la)))
+	;(print (list new-la match))
     (equal new-la match)))
 
 (defun new-clause (&optional (clause-type 'program))

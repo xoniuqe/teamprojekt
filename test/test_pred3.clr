@@ -1,0 +1,8 @@
+farbe(rot).
+farbe(gelb).
+farbe(blau).
+farbe(braun).
+farbe(rot).
+forall a b c d e: farbung(a,b,c,d,e) <= farbe(a) and farbe(b) and farbe(c) and farbe(d) and farbe(e) and nequal(a,b) and nequal(a,d) and nequal(a,e).
+
+exists a b c d e: farbung(a, b, c, d, e).

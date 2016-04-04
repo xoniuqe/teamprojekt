@@ -2,8 +2,7 @@
   (:use :common-lisp :util :parser :lexer :predicates)
   (:export :unify)
   (:export :run-program)
-  (:export :predicates-test)
-  )
+)
 
 (in-package :resolution)
 
@@ -328,100 +327,6 @@
 ;; (setq program (car input))
 ;; (setq goal (car (cadr input)))
 
-(defun check-for-predefined-predicates (cur-procedure)
-	(let* ((pos-lit (get (first cur-procedure) 'parser:pos-lit))
-		   (neg-lits (get (first cur-procedure) 'parser:neg-lits))
-		 ;  (predefined (remove-if-not 'is-predefined-predicate neg-lits))
-		  ; (evaluated (remove-if-not 'eval-predefined-predicate predefined))
-		)
-	
-		;(setf without-predicates (remove-if #'is-predefined-predicate neg-lits))
-
-		;(setf (get (first cur-procedure) 'parser:neg-lits) without-predicates)
-
-		;(setf returnv (if (eq (list-length predefined) (list-length evaluated)) cur-procedure NIL))
-		;(print (first (get pos-lit 'lexer:args)))
-		;(print pos-lit)
-		;(print "is const:")
-		;(print (term-is-const(first (get pos-lit 'lexer:args))))
-		
-	;	(setq neg-lits (remove-if (
-	;		lambda (lit) 
-	;			(if (and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
-	;				(if (not (eval-predicate (get lit 'lexer:name)  (first (get lit 'lexer:args))))
-	;					NIL
-	;					T
-	;				)
-	;			NIL)
-	;	) neg-lits))
-	;	(setf (get (first cur-procedure) 'parser:neg-lits) neg-lits)
-	;	
-	;	(if (and (is-predefined-predicate pos-lit) (term-is-const (first (get pos-lit 'lexer:args))))
-	;		(if (not (eval-predicate (get pos-lit 'lexer:name)  (first (get pos-lit 'lexer:args))))
-	; 		(return-from check-for-predefined-predicates nil)
-	;			(setf (get pos-lit 'parser:pos-lit) nil)
-;			)
-		;	(print "no predicate or const")
-	;	)
-	;	(print "returning")
-		;(print cur-procedure)
-		(setq tmp (remove-if #'is-predefined-predicate neg-lits))
-		;(print "TMP")
-		;(print tmp)
-		;(print (get (first cur-procedure) 'parser:neg-lits))
-		(setf (get (first cur-procedure) 'parser:neg-lits) tmp)
-		(if (is-predefined-predicate pos-lit)
-			(setf (get (first cur-procedure)  'parser:pos-lit) nil))
-		(return-from check-for-predefined-predicates cur-procedure)
-	)
-)
-
-
-
-
-
-(defun check-eval-predefined-predicate(lit)
-	;(print "check-eval")
-	;;(if (and (is-predefined-predicate lit) (eval-predefined-predicate lit) T NIL))
-	(if (is-predefined-predicate lit) (if (eval-predefined-predicate lit) T NIL) T)
-)
-
-(defun is-predefined-predicate (lit)
-	;(print "is-predefined-predicate")
-	(cond ((string= (get lit 'lexer:name) "iststeven") T)
-		  ((string= (get lit 'lexer:name) "print") T)
-		  (T NIL))
-)
-
-(defun eval-predicate (pred-name literals)
-	;(print "eval-predicate");;demo
-	;(print literals)
-	(setq check-value (first literals)) ;; demo
-	(cond 
-		((and (string= pred-name "iststeven") (string-equal (get check-value 'lexer:name) "steven")) T)
-		((string= pred-name "print") (progn (print (get check-value 'lexer:name)) T))
-		(T NIL)
-	)
-)
-
-(defun eval-predefined-predicate (lit)
-	(if ( and (string= (get lit 'lexer:name) "iststeven") (string=  (get (get lit'lexer:var) 'lexer:name) "steven")) T NIL)
-	(if (string= (get lit 'lexer:name) "print") (progn (print  (get (get lit'lexer:var) 'lexer:name)) T) NIL)
-	;(cond ((not lit) NIL) (T T))
-)
-
-(defun predicates-test () 
-	(let ((sym (gensym "PRED-")))
-		(import sym)
-		(setf (get sym 'name) "issteven")
-		(setf (get sym 'func) (lambda (x) (string= x "steven")))
-		sym
-	)
-)
-
-(defun literal-list-is-const (literals)
-	(remove-if (lambda (lit) (term-is-const (first (get lit 'lexer:args)))) literals)
-)
 
 ;  (setq path "../test/test_pred.clr")
 ; (setq input (multiple-value-list (split-prog-from-goals (parse-file path))))
@@ -480,8 +385,8 @@
 				(setf neg-literals (remove-if (lambda (lit) 
 				;;lexer:args enthält eine liste der literale, diese müssen mit einer schleife getestet werden ob jedes const ist
 				;; dann mus diese liste an eval-predicate gereicht werden
-				(if (is-predefined-predicate lit);(and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
-					(if (not (eval-predicate (get lit 'lexer:name)   (get lit 'lexer:args)))
+				(if (predicates:is-predefined-predicate lit);(and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
+					(if (not (predicates:eval-predicate (get lit 'lexer:name)   (get lit 'lexer:args)))
 						NIL
 						T
 					)
