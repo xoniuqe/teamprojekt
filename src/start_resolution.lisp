@@ -28,28 +28,37 @@
 ;)
 ) liste)
 
-(setq pred (resolution:predicates-test))
-(get pred 'resolution::name)
-(funcall pred "test")
-
-(setf func (get pred 'resolution::func))
-
-(eval 'func)
-
-(funcall func "steven")
-
-(let (sym (gensym "bla"))
-
-(setf (symbol-function sym) (predicates:load-predicate "../predicates/issteven.pred"))
-(funcall (eval test) "steven")
-
-)
 
 (predicates:setup-predicates )
 (predicates:get-predicate "iststeven")
 (setf issteven (predicates:get-predicate-func "iststeven"))
 (apply issteven '("steven"))
 (predicates:get-predicate "bla")
-(predicates:is-predefined-predicate2 "iststeven")
+;(predicates:is-predefined-predicate2 "iststeven")
 
 (predicates:load-predicate "../predicates/issteven.pred") 
+
+(setq path (pathname "../predicates/issteven.pred"))
+(dateilesen path)
+
+(defun dateilesen (dateiname)
+  (do* ((streamin (open dateiname))
+        exprs
+        (expr (read streamin nil 'eof)
+              (read streamin nil 'eof)))
+       ((equal expr 'eof) (close streamin)
+        (nreverse exprs))
+    (setq exprs (cons expr exprs)))) 
+
+(dataread "../predicates/issteven.pred")
+(defun dataread (name)
+  (defparameter test "")
+  (do* ((in (open name))
+        lines 
+        (line (read-line in nil 'eof)
+              (read-line in nil 'eof)))
+       ((equal line 'eof) (close in))
+    (setq test (setq lines (concatenate 'string lines line (make-string 1 :initial-element #\newline))))))
+(print test)
+
+(print (dateilesen "../predicates/issteven.pred"))

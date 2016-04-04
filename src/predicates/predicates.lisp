@@ -10,24 +10,26 @@
 
 (in-package :predicates)
 
+(defvar *predicates*)
+
 (defun load-predicates (path)
 	
 )
 
 (defun load-predicate (path)
-	;(load path)
-;	(let ((lisp-printed-string
- ;      (with-output-to-string (*standard-output*)
-  ;       (eval (read path t t t)))))
-  ;; concatenate the lisp printed string onto your 
-  ;; hand parsed string here
-  )
-  (do ((stream (make-string-input-stream string))
-     read-list)
-    ((not (listen stream)) (reverse read-list))
-  (push (eval (read stream)) read-list))
+	(dateilesen path)
 )
 
+;;Move to utils
+(defun dateilesen (dateiname)
+  (do* ((streamin (open dateiname))
+        exprs
+        (expr (read streamin nil 'eof)
+              (read streamin nil 'eof)))
+       ((equal expr 'eof) (close streamin)
+        (nreverse exprs))
+    (setq exprs (cons expr exprs)))) 
+	
 (defun predicates-test () 
 	(let ((sym (gensym "PRED-")))
 		(import sym)
