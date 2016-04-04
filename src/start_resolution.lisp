@@ -36,6 +36,8 @@
 
 (eval 'func)
 
+(funcall func "steven")
+
 (let (sym (gensym "bla"))
 
 (setf (symbol-function sym) (predicates:load-predicate "../predicates/issteven.pred"))
@@ -43,4 +45,11 @@
 
 )
 
-(predicates:load-predicate "../predicates/issteven.pred")
+(predicates:setup-predicates )
+(predicates:get-predicate "iststeven")
+(setf issteven (predicates:get-predicate-func "iststeven"))
+(apply issteven '("steven"))
+(predicates:get-predicate "bla")
+(predicates:is-predefined-predicate2 "iststeven")
+
+(predicates:load-predicate "../predicates/issteven.pred") 

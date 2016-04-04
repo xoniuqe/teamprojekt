@@ -414,7 +414,7 @@
 	(let ((sym (gensym "PRED-")))
 		(import sym)
 		(setf (get sym 'name) "issteven")
-		(setf (symbol-function sym) (lambda (x) (string= x "steven")))
+		(setf (get sym 'func) (lambda (x) (string= x "steven")))
 		sym
 	)
 )
