@@ -333,7 +333,58 @@
 ; (setq program (car input))
 ; (setq goal (first (cadr input)))
 
-
+(defun number-string-to-number (number-string)
+	;(print "number-string-to-number")
+	(print (parse-integer (string-trim "number-" number-string)))
+)
+(defun check-fun-args-const (fun)
+	(let* ((operator (get fun 'lexer:name))
+		(result (mapcar (lambda (argument) 
+				(let ((type (get argument 'type)))
+					(cond ((equal type 'function) (check-fun-args-const argument))
+						  ((equal type 'const) T)
+						  (T (progn (print (list "fail" argument type)) (return-from check-fun-args-const NIL)))
+					)
+				)
+			)
+		(get fun 'lexer:args))))
+		(mapcar (lambda (x) (if (not x) (return-from check-fun-args-const NIL))) result)
+		(return-from check-fun-args-const T)
+	)
+)
+#|
+(defun is-arith-fun (fun)
+	(let* ((operator (get fun 'lexer:name))
+		(result (cond ((string-equal operator "+") T) 
+			(T NIL))))
+	;	(print (list "is-arith-fun:" result))
+		result
+	)
+)
+(defun eval-fun (fun)
+	;(print "----")
+	;;(print "in eval-fun")
+	;(print fun)
+	(let ((operator (get fun 'lexer:name))
+		(number-list (mapcar (lambda (argument) 
+			;	(print (list "argument:" argument))
+				(let ((type (get argument 'type))
+					  (nvalue (get argument 'parser::value)))
+					(cond ((not nvalue) (setq nvalue 0))
+						 (T NIL))
+					;(print (list "value: " nvalue))
+					(cond ((equal type 'function) (eval-fun argument))
+						  ((equal type 'const) nvalue)
+						  (T NIL)
+					)
+				)
+			)
+		(get fun 'lexer:args))))
+		(cond ((string-equal operator "+") 
+			(apply '+ number-list))
+			(T NIL))
+	)
+)|#
 ;; program is the list of prog-clauses
 ;; Goal is a clause with the pos-lit "answer(x1,...,xn)"
 ;; where xi is a variable in the goal
@@ -382,6 +433,50 @@
 			     )
 				 ;(print neg-literals)
 	;; hiermit wird das program auch dann beendet wenn nur diese eine clausel auf das prädikat zutrifft
+				;(print "resolvente")
+				;(print (get resolvent 'pos-lit))
+				
+				#|(let ((arguments (get (get resolvent 'pos-lit) 'lexer:args)))
+					(mapcar (lambda (argument) 
+							(if (equal (get argument 'lexer:type) 'function)
+								(if  (and (is-arith-fun argument) (check-fun-args-const argument))
+									(let ((eval-result (eval-fun argument)))
+										(print eval-result)
+										(if (numberp eval-result) 
+											 (setf (get resolvent 'pos-lit) (let ((sym (gensym "const-")))
+											   (import sym)
+											   (setf (get sym 'type) 'const)
+											   (setf (get sym 'name)
+												 (concatenate 'string
+													  "number-"
+													  (write-to-string eval-result)))
+											   (setf (get sym 'parser::value) eval-result)
+											   sym)
+											   )
+										)
+									)
+								)
+							)
+						)
+					arguments)
+				)|#
+				
+				;(print (get resolvent 'pos-lit))
+						
+				#|(mapcar (lambda (lit)
+						(let ((arguments (get lit 'lexer:args)))
+							(mapcar (lambda (argument) 
+									(if (equal (get argument 'lexer:type) 'function)
+										(if  (and (is-arith-fun argument) (check-fun-args-const argument))
+											(print (eval-fun argument))
+										)
+									)
+								)
+							arguments)
+						)
+					)
+				neg-literals)|#
+				
 				(setf neg-literals (remove-if (lambda (lit) 
 				;;lexer:args enthält eine liste der literale, diese müssen mit einer schleife getestet werden ob jedes const ist
 				;; dann mus diese liste an eval-predicate gereicht werden
@@ -406,6 +501,8 @@
 						     (extract-procedure program
 									(get (car (get (car goals) 'neg-lits)) 'name))) ;;nächste clausel wird ausgewählt, nach dem namen des ersten negativen literals des (resolierten) ziels
 					     (update-ps program-stack)))))))))))))
+						 
+			
 
 (defun run-program (path)
   (let* ((input (multiple-value-list (split-prog-from-goals (parse-file path))))

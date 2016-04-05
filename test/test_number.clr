@@ -1,0 +1,7 @@
+sum([], 0).
+forall h t y: sum([h | t], y + h) <= sum(t,y).
+
+forall x: sum2([], x).
+forall h t y: sum2([h | t], y) <= sum(t, h + y).
+
+exists x: sum2([1,2,3],x).

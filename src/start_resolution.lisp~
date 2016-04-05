@@ -1,6 +1,6 @@
 ;(cd #P"C:/Users/Tobias/Documents/Lisp/cl-reason/src/")
 ;(get-current-directory)
-
+#|
 (load (merge-pathnames "../lib/asdf" *load-truename*))
 
 (load (merge-pathnames "init" *load-truename*))
@@ -17,7 +17,7 @@
 (setq file-path (merge-pathnames "../test/test_pred3.clr" *load-truename*))
 
 (predicates:setup-predicates )
-(setq folder (directory (merge-pathnames "../predicates/*.pred" *load-truename*))
+(setq folder (directory (merge-pathnames "../predicates/*.pred" *load-truename*)))
 (predicates:load-predicates folder)
 
 (setq liste (first (resolution:run-program file-path)))
@@ -32,3 +32,4 @@
 (mapcar (lambda (y) (get y 'resolution::name)) x)
 ) liste)
 
+|#

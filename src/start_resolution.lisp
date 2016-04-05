@@ -1,6 +1,6 @@
 ;(cd #P"C:/Users/Tobias/Documents/Lisp/cl-reason/src/")
 ;(get-current-directory)
-#|
+
 (load (merge-pathnames "../lib/asdf" *load-truename*))
 
 (load (merge-pathnames "init" *load-truename*))
@@ -10,11 +10,11 @@
 (load (merge-pathnames "predicates/predicates" *load-truename*))
 (load (merge-pathnames "logik/resolution" *load-truename*))
 
-
-
 ; zeug zum testen und für schöne ausgabe
+(run)
 
-(setq file-path (merge-pathnames "../test/test_pred3.clr" *load-truename*))
+(defun run () 
+(setq file-path (merge-pathnames "../test/test_number.clr" *load-truename*))
 
 (predicates:setup-predicates )
 (setq folder (directory (merge-pathnames "../predicates/*.pred" *load-truename*)))
@@ -22,14 +22,66 @@
 
 (setq liste (first (resolution:run-program file-path)))
 
-;(let ((in (open file-path :if-does-not-exist nil)))
-; (when in
-;    (loop for line = (read-line in nil))
-;         (while line do (write-line line))
-;     (close in)))
-
 (mapcar (lambda(x) 
-(mapcar (lambda (y) (get y 'resolution::name)) x)
-) liste)
+	(mapcar 'calc-result x)
+	) liste)
+)
 
-|#
+(defun calc-result (result)
+	(print result)
+	(let ((type (get result 'resolution::type)))
+		(cond ((equal type 'variable) (get result 'resolution::name))
+			 ((equal type 'function) (eval-fun result))
+			  )
+	)
+)
+
+
+(defun check-fun-args-const (fun)
+	(let* ((operator (get fun 'lexer:name))
+		(result (mapcar (lambda (argument) 
+				(let ((type (get argument 'type)))
+					(cond ((equal type 'function) (check-fun-args-const argument))
+						  ((equal type 'parser::const) T)
+						  (T (progn (print (list "fail" argument type)) (return-from check-fun-args-const NIL)))
+					)
+				)
+			)
+		(get fun 'lexer:args))))
+		(mapcar (lambda (x) (if (not x) (return-from check-fun-args-const NIL))) result)
+		(return-from check-fun-args-const T)
+	)
+)
+
+(defun is-arith-fun (fun)
+	(let* ((operator (get fun 'lexer:name))
+		(result (cond ((string-equal operator "+") T) 
+			(T NIL))))
+	;	(print (list "is-arith-fun:" result))
+		result
+	)
+)
+(defun eval-fun (fun)
+	;(print "----")
+	;;(print "in eval-fun")
+	;(print fun)
+	(let ((operator (get fun 'lexer::name))
+		(number-list (mapcar (lambda (argument) 
+			;	(print (list "argument:" argument))
+				(let ((type (get argument 'type))
+					  (nvalue (get argument 'parser::value)))
+					(cond ((not nvalue) (setq nvalue 0))
+						 (T NIL))
+					;(print (list "value: " nvalue))
+					(cond ((equal type 'function) (eval-fun argument))
+						  ((equal type 'parser::const) nvalue)
+						  (T NIL)
+					)
+				)
+			)
+		(get fun 'lexer:args))))
+		(cond ((string-equal operator "+") 
+			(apply '+ number-list))
+			(T NIL))
+	)
+)
