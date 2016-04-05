@@ -1,20 +1,23 @@
 ;(cd #P"C:/Users/Tobias/Documents/Lisp/cl-reason/src/")
+;(get-current-directory)
+#|
+(load (merge-pathnames "../lib/asdf" *load-truename*))
 
-(load "init")
-(load "util/util")
-(load "parser/lexer")
-(load "parser/parser")
-(load "predicates/predicates")
-(load "logik/resolution")
+(load (merge-pathnames "init" *load-truename*))
+(load (merge-pathnames "util/util" *load-truename*))
+(load (merge-pathnames "parser/lexer" *load-truename*))
+(load (merge-pathnames "parser/parser" *load-truename*))
+(load (merge-pathnames "predicates/predicates" *load-truename*))
+(load (merge-pathnames "logik/resolution" *load-truename*))
 
 
 
 ; zeug zum testen und für schöne ausgabe
 
-(setq file-path "../test/test_pred3.clr")
+(setq file-path (merge-pathnames "../test/test_pred3.clr" *load-truename*))
 
 (predicates:setup-predicates )
-(setq folder (directory "../predicates/*.pred"))
+(setq folder (directory (merge-pathnames "../predicates/*.pred" *load-truename*)))
 (predicates:load-predicates folder)
 
 (setq liste (first (resolution:run-program file-path)))
@@ -29,42 +32,4 @@
 (mapcar (lambda (y) (get y 'resolution::name)) x)
 ) liste)
 
-
-(predicates:setup-predicates )
-(predicates:add-predicate "iststeven" (lambda (v) (string-equal v "steven")))
-(predicates:get-predicate "iststeven")
-(setf issteven (predicates:get-predicate-func "iststeven"))
-(apply issteven '("steven"))
-(predicates:get-predicate "bla")
-;(predicates:is-predefined-predicate2 "iststeven")
-
-(predicates:load-predicate "../predicates/issteven.pred") 
-
-(setq path (pathname "../predicates/issteven.pred"))
-(dateilesen path)
-
-(load "predicates/predicates")
-(setq folder (directory "../predicates/*.pred"))
-(predicates:load-predicates folder)
-
-(defun dateilesen (dateiname)
-  (do* ((streamin (open dateiname))
-        exprs
-        (expr (read streamin nil 'eof)
-              (read streamin nil 'eof)))
-       ((equal expr 'eof) (close streamin)
-        (nreverse exprs))
-    (setq exprs (cons expr exprs)))) 
-
-(dataread "../predicates/issteven.pred")
-(defun dataread (name)
-  (defparameter test "")
-  (do* ((in (open name))
-        lines 
-        (line (read-line in nil 'eof)
-              (read-line in nil 'eof)))
-       ((equal line 'eof) (close in))
-    (setq test (setq lines (concatenate 'string lines line (make-string 1 :initial-element #\newline))))))
-(print test)
-
-(print (dateilesen "../predicates/issteven.pred"))
+|#

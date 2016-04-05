@@ -8,7 +8,7 @@
 
 (in-package :lexer)
 
-(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\(. *\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
+(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\([^)]*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
 
 (defvar *regex-term* "\\d+|\\w+|.")
 
@@ -30,7 +30,7 @@
 (defun lex-list (l)
   "replaces strings in 'l' with appropriate tokens"
   (mapcar (lambda (x)
-  		;(print (list "lex-list: " x))
+  		(print (list "lex-list: " x))
 	    (cond ((string= x "forall") (make-token "lexer::forall"))
 		  ((string= x "exists") (make-token "lexer::exists"))
 		  ((string= x "and") (make-token "lexer::and"))
