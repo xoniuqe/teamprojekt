@@ -2,6 +2,7 @@
 ;(get-current-directory)
 
 (load (merge-pathnames "../lib/asdf" *load-truename*))
+(require 'asdf)
 
 (load (merge-pathnames "init" *load-truename*))
 (load (merge-pathnames "util/util" *load-truename*))

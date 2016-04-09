@@ -333,16 +333,12 @@
 ; (setq program (car input))
 ; (setq goal (first (cadr input)))
 
-(defun number-string-to-number (number-string)
-	;(print "number-string-to-number")
-	(print (parse-integer (string-trim "number-" number-string)))
-)
 (defun check-fun-args-const (fun)
 	(let* ((operator (get fun 'lexer:name))
 		(result (mapcar (lambda (argument) 
 				(let ((type (get argument 'type)))
 					(cond ((equal type 'function) (check-fun-args-const argument))
-						  ((equal type 'const) T)
+						  ((equal type 'parser::const) T)
 						  (T (progn (print (list "fail" argument type)) (return-from check-fun-args-const NIL)))
 					)
 				)
@@ -352,7 +348,7 @@
 		(return-from check-fun-args-const T)
 	)
 )
-#|
+
 (defun is-arith-fun (fun)
 	(let* ((operator (get fun 'lexer:name))
 		(result (cond ((string-equal operator "+") T) 
@@ -365,7 +361,7 @@
 	;(print "----")
 	;;(print "in eval-fun")
 	;(print fun)
-	(let ((operator (get fun 'lexer:name))
+	(let ((operator (get fun 'lexer::name))
 		(number-list (mapcar (lambda (argument) 
 			;	(print (list "argument:" argument))
 				(let ((type (get argument 'type))
@@ -374,7 +370,7 @@
 						 (T NIL))
 					;(print (list "value: " nvalue))
 					(cond ((equal type 'function) (eval-fun argument))
-						  ((equal type 'const) nvalue)
+						  ((equal type 'parser::const) nvalue)
 						  (T NIL)
 					)
 				)
@@ -384,7 +380,7 @@
 			(apply '+ number-list))
 			(T NIL))
 	)
-)|#
+)
 ;; program is the list of prog-clauses
 ;; Goal is a clause with the pos-lit "answer(x1,...,xn)"
 ;; where xi is a variable in the goal
