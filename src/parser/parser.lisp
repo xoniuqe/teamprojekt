@@ -56,14 +56,14 @@
 	 '((lit end) (s) 2))
 	((la-check la NIL)
 	 '(nil nil 3))
-	(T (error "no fitting production"))))
+	(T (error "no fitting production S"))))
 
 (defun v (la)
   (cond ((la-check la '(var var))
 	 '((var) (v) 4))
 	((la-check la '(var in))
 	 '((var in) nil 5))
-	(T (error "no fitting production"))))
+	(T (error "no fitting production V"))))
 
 (defun k (la)
   (cond ((la-check la '(lit <=))
@@ -74,14 +74,15 @@
 	 '((lit end) nil 8))
 	((la-check la '(lit =>))
 	 '(() (f) 9))
-	(T (error "no fitting production"))))
+	(T (error "no fitting production K"))))
 
 (defun f (la)
   (cond ((la-check la '(lit end))
 	 '((lit end) nil 7))
 	((la-check la '(lit and))
 	 '((lit and) (f) 7))
-	(T (error "no fitting production"))))
+	(T 
+	(progn (print la) (error "no fitting production F" )))))
 
 (defun f2 (la)
   (cond ((la-check la '(lit end))
@@ -90,7 +91,7 @@
 	 '((lit => lit end) nil 11))
 	((la-check la '(lit and))
 	 '((lit and) (f) 7))
-	(T (error "no fitting production"))))
+	(T (progn (print la) (error "no fitting production F2" )))))
 
 (defun next-nt (l)
   (cond ((not l) (lambda (x) x))
@@ -98,6 +99,7 @@
 
 (defun la-check (la match)
   (let ((new-la (mapcar 'symbol-value la)))
+	(print (list new-la match))
     (equal new-la match)))
 
 (defun new-clause (&optional (clause-type 'program))

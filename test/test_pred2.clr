@@ -1,0 +1,11 @@
+test(a).
+test(b).
+test(c).
+test2(a).
+
+forall x y: tmp(x,y) <= test(x) and test2(y) and equal(x,y).
+
+
+forall x y: test(x,y) <= member(x, y) and test(x).
+
+exists x: append([1,2,3],[a,b,c],x).

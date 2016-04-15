@@ -1,4 +1,9 @@
 abc(ich).
-forall x: test(x) <= abc(x) and iststeven(x). 
+abc(test).
+abc(steven).
+def(steven).
+ghi(steven).
 
-exists x: test(x).
+forall x: test(x) <= abc(x) and def(x) and ghi(x). 
+
+exists x: test(x).	

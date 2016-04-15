@@ -1,0 +1,2 @@
+forall x: append([], x, x).
+forall a b c d: append([a|b],c,[a|d]) <= append(b,c,d).

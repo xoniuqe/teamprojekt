@@ -8,7 +8,7 @@
 
 (in-package :lexer)
 
-(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\([^)]*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
+(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
 
 (defvar *regex-term* "\\d+|\\w+|.")
 
@@ -18,30 +18,42 @@
 (setq l (cl-ppcre:all-matches-as-strings *regex-prog* clause))
 
 ;; (setq path "/home/steven/dev/lisp/cl-reason/test/test_prog.clr")
-;(defvar path "/home/steven/dev/lisp/cl-reason/test/test_prog.clr")
+(defvar path "/home/steven/dev/lisp/cl-reason/test/test_prog.clr")
 
 (defun split-into-tokens (str)
   (mapcan (lambda (clause)
-		(print clause)
-		(print  (cl-ppcre:all-matches-as-strings *regex-prog* clause))
 	    (cl-ppcre:all-matches-as-strings *regex-prog* clause))
 	  (cl-ppcre:all-matches-as-strings ".+?\\." str)))
 
+; (defun lex-list (l)
+ ; "replaces strings in 'l' with appropriate tokens"
+ ; (mapcar (lambda (x)
+	    ; (cond ((string= x "forall") (make-token "forall"))
+		  ; ((string= x "exists") (make-token "exists"))
+		  ; ((string= x "and") (make-token "and"))
+		  ; ((string= x "=>") (make-token "=>"))
+		  ; ((string= x "<=") (make-token "<="))
+		  ; ((string= x ".") (make-token "end"))
+		  ; ((string= x ":") (make-token "in"))
+		  ; ((= (length x) 1) (make-variable-sym x))
+		  ; (t (make-literal-sym x))))
+	  ; l))
+	  
 (defun lex-list (l)
   "replaces strings in 'l' with appropriate tokens"
   (mapcar (lambda (x)
-  		(print (list "lex-list: " x))
-	    (cond ((string= x "forall") (make-token "lexer::forall"))
-		  ((string= x "exists") (make-token "lexer::exists"))
-		  ((string= x "and") (make-token "lexer::and"))
-		  ((string= x "=>") (make-token "lexer::=>"))
-		  ((string= x "<=") (make-token "lexer::<="))
-		  ((string= x ".") (make-token "lexer::end"))
-		  ((string= x ":") (make-token "lexer::in"))
+	    (cond ((string= x "forall") (make-token "resolution::forall"))
+		  ((string= x "exists") (make-token "resolution::exists"))
+		  ((string= x "and") (make-token "resolution::and"))
+		  ((string= x "=>") (make-token "resolution::=>"))
+		  ((string= x "<=") (make-token "resolution::<="))
+		  ((string= x ".") (make-token "resolution::end"))
+		  ((string= x ":") (make-token "resolution::in"))
 		  ((= (length x) 1) (make-variable-sym x))
 		  (t (make-literal-sym x))))
 	  l))
-
+	  
+	  
 (defun make-token (s)
   (let ((sym (gensym (concatenate 'string s "-"))))
     (import sym)

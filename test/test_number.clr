@@ -1,0 +1,8 @@
+sum([], 0).
+forall h t y: sum([h | t], y + h) <= sum(t,y).
+
+forall x y z: supersum(x, y + z) <= sum(x,y) and sum(x,z).
+
+forall x y z: sum(x,y) and sum(x,z) and supersum(x,y) => test(x,y+z).
+
+exists x: test([1,2,3],x).
