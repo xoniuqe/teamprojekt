@@ -256,9 +256,9 @@
     sym))
 
 (defun extract-procedure (program pname)
-	;(print "extract-procedure")
-	;(print program)
-	;(print pname)
+	(print "extract-procedure")
+	(print program)
+	(print pname)
 	;
   (remove-if (lambda (x)
 	       (not (string= pname (get (get x 'pos-lit) 'name))))
@@ -385,7 +385,8 @@
 ;; Goal is a clause with the pos-lit "answer(x1,...,xn)"
 ;; where xi is a variable in the goal
 (defun sld-resolution (program goal)
-;(print program)
+	;;; Add predefined predicates to the program (only if they are written in clr)
+	(setf program (append program (predicates:get-clause-predicates)))
   (do* ((goals (list (prepare-goal goal)))
 	;; (setq goals (list (prepare-goal goal)))
 	(cur-goal-clause (copy-clause (car goals))
@@ -397,21 +398,22 @@
 	(program-stack (list (mapcar 'copy-clause (extract-procedure program (get cur-subgoal 'name)))))
 	;; (setq program-stack (list (mapcar 'copy-clause (extract-procedure program (get cur-subgoal 'name)))))
 	)
+	
        ((not program-stack) 'fail)
-	 ;  (print program-stack)
-       (let ((cur-procedure (car program-stack)))
-;Hier wird gepr�ft ob die aktuelle Klausel ein Pr�dikat ist, dazu wird, das pos-lit genommen und gepr�ft ob es zu den vordefinierten pr�dikaten geh�rt
-		;(print program-stack)
-		;(print cur-procedure)	
-		;(print "next clause")
-		;(setq cur-procedure (check-for-predefined-predicates cur-procedure))
+	   
+	   ;;; TODO add check if it is an predefined lisp predicate
 
-	 ;; (setq cur-procedure (car program-stack))
+       (let ((cur-procedure (car program-stack)))
+	 #|(if (and (not cur-procedure)(predicates:is-predefined-predicate cur-subgoal));(and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
+			(if (not (predicates:eval-predicate (get cur-subgoal 'lexer:name)   (get cur-subgoal 'lexer:args)))
+				NIL
+				(return (list (get goal 'vars) (get (get resolvent 'pos-lit) 'args)))
+			)
+		NIL)|#
 	 (if (not cur-procedure)
 	     (progn ;; Backtracking
 	       (setq goals (cdr goals))
 	       (setq program-stack (cdr program-stack))
-	;	(print "back-tracking")
 )
  
 	   (let* ((next-lit (get (car cur-procedure) 'pos-lit))
@@ -429,51 +431,11 @@
 			     )
 				 ;(print neg-literals)
 	;; hiermit wird das program auch dann beendet wenn nur diese eine clausel auf das prädikat zutrifft
-				;(print "resolvente")
-				;(print (get resolvent 'pos-lit))
-				
-				#|(let ((arguments (get (get resolvent 'pos-lit) 'lexer:args)))
-					(mapcar (lambda (argument) 
-							(if (equal (get argument 'lexer:type) 'function)
-								(if  (and (is-arith-fun argument) (check-fun-args-const argument))
-									(let ((eval-result (eval-fun argument)))
-										(print eval-result)
-										(if (numberp eval-result) 
-											 (setf (get resolvent 'pos-lit) (let ((sym (gensym "const-")))
-											   (import sym)
-											   (setf (get sym 'type) 'const)
-											   (setf (get sym 'name)
-												 (concatenate 'string
-													  "number-"
-													  (write-to-string eval-result)))
-											   (setf (get sym 'parser::value) eval-result)
-											   sym)
-											   )
-										)
-									)
-								)
-							)
-						)
-					arguments)
-				)|#
-				
-				;(print (get resolvent 'pos-lit))
-						
-				#|(mapcar (lambda (lit)
-						(let ((arguments (get lit 'lexer:args)))
-							(mapcar (lambda (argument) 
-									(if (equal (get argument 'lexer:type) 'function)
-										(if  (and (is-arith-fun argument) (check-fun-args-const argument))
-											(print (eval-fun argument))
-										)
-									)
-								)
-							arguments)
-						)
-					)
-				neg-literals)|#
-				
-				(setf neg-literals (remove-if (lambda (lit) 
+
+				(setf pred-literals (remove-if-not 'predicates:is-predefined-predicate neg-literals))
+				(setf other-literals (remove-if 'predicates:is-predefined-predicate neg-literals))
+				(setf (get resolvent 'neg-lits) (append other-literals pred-literals))
+				(setf pred-literals (remove-if (lambda (lit) 
 				;;lexer:args enthält eine liste der literale, diese müssen mit einer schleife getestet werden ob jedes const ist
 				;; dann mus diese liste an eval-predicate gereicht werden
 				(if (predicates:is-predefined-predicate lit);(and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
@@ -481,17 +443,23 @@
 						NIL
 						T
 					)
-				NIL)) neg-literals))
+				NIL)) pred-literals))
 				
-			;	(print "neg-literals")
-			;	(print neg-literals)
-	;			 (print "resolvente:")
-		;		 (print resolvent)
+				(setf neg-literals (append other-literals pred-literals))
+				
+				#|(setf neg-literals (remove-if (lambda (lit) 
+				;;lexer:args enthält eine liste der literale, diese müssen mit einer schleife getestet werden ob jedes const ist
+				;; dann mus diese liste an eval-predicate gereicht werden
+				(if (predicates:is-predefined-predicate lit);(and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
+					(if (not (predicates:eval-predicate (get lit 'lexer:name)   (get lit 'lexer:args)))
+						NIL
+						T
+					)
+				NIL)) neg-literals))|#
+				
 			(if (not neg-literals)
 			    (return (list (get goal 'vars) (get (get resolvent 'pos-lit) 'args)))
 			  (progn (setq goals (cons resolvent goals))
-			;	(print "resoliertes goal")
-			;	(print goals)
 				 (setq program-stack
 				       (cons (mapcar 'copy-clause
 						     (extract-procedure program

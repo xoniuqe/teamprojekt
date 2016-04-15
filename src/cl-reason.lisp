@@ -814,3 +814,9 @@
     (mapcar (lambda (goal)
 	      (sld-resolution program goal))
 	    goals)))
+		
+(defun run-program2 (program goals)
+	(mapcar (lambda(goal) 
+		(sld-resolution program goal))
+	goals)
+)	

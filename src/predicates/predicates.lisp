@@ -1,5 +1,5 @@
 (defpackage :predicates
-  (:use :common-lisp :util :lexer)
+  (:use :common-lisp :util :lexer :parser)
   (:export :load-predicates)
   (:export :load-predicate)
   (:export :setup-predicates)
@@ -8,6 +8,7 @@
   (:export :is-predefined-predicate)
   (:export :eval-predicate)
   (:export :add-predicate)
+  (:export :get-clause-predicates)
  )
 
 (in-package :predicates)
@@ -20,22 +21,38 @@
 
 (defun load-predicate (path)
 	;(print (list "path" path))
-	(let ((content (dateilesen path))
-		  (pred-name (pathname-name path)))
-		
-		(add-predicate pred-name (eval (first content)))	
+		; demo für predicate in clr sprache
+	(if (string-equal "clr" (pathname-type path))
+		(let ((parsed (parser:parse-file path))
+			  (pred-name (pathname-name path)))
+			(if (not parsed) (return-from load-predicates))
+			;(print "clr predicate, not implemented yet!")
+			(add-predicate pred-name parsed 'CLR)
+		)
+		(let ((content (dateilesen path))
+			  (pred-name (pathname-name path)))
+			(add-predicate pred-name (eval (first content)) 'LISP)	
+		)
 	)
 )
+
+(defun get-clause-predicates ()
+	(let ((clauses (mapcar (lambda (x) (get (cdr x) 'func)) (remove-if-not (lambda (x) (equal (get (cdr x) 'type) 'CLR)) *predicates*))))
+		(apply 'append clauses)
+	)
+)
+
 
 (defun setup-predicates ()
 	(setq *predicates* (list ))
 )
 
-(defun add-predicate(pred-name pred-func)
+(defun add-predicate(pred-name pred-func pred-type)
 	 (let ((sym (gensym "PRED-")))
 		(import sym)
 		(setf (get sym 'name) pred-name)
 		(setf (get sym 'func) pred-func)
+		(setf (get sym 'type) pred-type)
 		(setq *predicates* (acons pred-name sym *predicates*))
 	 )
 )
@@ -49,14 +66,19 @@
 )
 
 (defun is-predefined-predicate (lit)
-	(if (get-predicate (get lit 'lexer:name)) T NIL)
+	(let ((predicate (get-predicate (get lit 'lexer:name))))
+		(cond ((not predicate) NIL)
+			((equal (get predicate 'type) 'LISP) T)
+			(T NIL)
+		)
+	)
 )
 
 (defun eval-predicate (pred-name args)
 	(if (get-predicate pred-name) 
-		 (let ((proc-args (mapcar (lambda (arg) (get arg 'lexer:name)) args)))
-		 	(apply (get-predicate-func pred-name) proc-args)
-		 )
+		; (let ((proc-args (mapcar (lambda (arg) (get arg 'lexer:name)) args)))
+		 	(apply (get-predicate-func pred-name) args)
+		; )
 		NIL
 	)
 )
