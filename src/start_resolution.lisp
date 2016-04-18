@@ -44,8 +44,8 @@
 (setf result (mapcar (lambda(x) 
 	(mapcar 'calc-result x)
 	) liste))
-(print result)
-(print "ergebnis ist ok :)")
+;(print result)
+;(print "ergebnis ist ok :)")
 )
 
 (defun calc-result (result)
