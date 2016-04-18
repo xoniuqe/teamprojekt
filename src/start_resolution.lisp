@@ -1,8 +1,9 @@
 ;(cd #P"C:/Users/Tobias/Documents/Lisp/cl-reason/src/")
 ;(get-current-directory)
 
-(load (merge-pathnames "../lib/asdf" *load-truename*))
-(require 'asdf)
+(if (not (require 'asdf)) 
+    (load (merge-pathnames "../lib/asdf" *load-truename*))
+)
 
 (load (merge-pathnames "init" *load-truename*))
 (load (merge-pathnames "util/util" *load-truename*))
@@ -11,7 +12,7 @@
 (load (merge-pathnames "predicates/predicates" *load-truename*))
 (load (merge-pathnames "logik/resolution" *load-truename*))
 
-; zeug zum testen und fã¼r schã¶ne ausgabe
+; zeug zum testen und für schöne ausgabe
 (setq file-path (merge-pathnames "../test/test_pred2.clr" *load-truename*))
 
 (run)
@@ -67,10 +68,8 @@
 		result
 	)
 )
+
 (defun eval-fun (fun)
-	;(print "----")
-	;;(print "in eval-fun")
-	;(print fun)
 	(let ((operator (get fun 'lexer::name))
 		(number-list (mapcar (lambda (argument) 
 			;	(print (list "argument:" argument))
@@ -93,31 +92,3 @@
 			(T NIL))
 	)
 )
-
-
-(predicates:setup-predicates )
-(setq folder (directory (merge-pathnames "../predicates/*.*" *load-truename*)))
-(predicates:load-predicates folder)
-(predicates:all-predicates)
-
-(setq liste (first (resolution:run-program file-path)))
-
-(mapcar (lambda(x) 
-	(mapcar 'calc-result x)
-	) liste)
-)
-
-(defun calc-result (result)
-	(print result)
-	(let ((type (get result 'resolution::type)))
-          (print type)
-		(cond ((equal type 'variable) (get result 'resolution::name))
-                      ((equal type 'function) (eval-fun result))
-                      ((equal type 'parser::const) (get result 'resolution::name))
-			  )
-	)
-)
-
-
-(defun check-fun-args-const (fun)
-	(let* ((operator (get fun 'lexer:name))
