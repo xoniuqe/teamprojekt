@@ -256,10 +256,6 @@
     sym))
 
 (defun extract-procedure (program pname)
-	(print "extract-procedure")
-	(print program)
-	(print pname)
-	;
   (remove-if (lambda (x)
 	       (not (string= pname (get (get x 'pos-lit) 'name))))
 	     program))
