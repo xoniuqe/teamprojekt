@@ -26,7 +26,7 @@
 
 (set-eval-func 'run)
 
-
+;test
 (main)
 
 
@@ -35,9 +35,9 @@
 
 
 (predicates:setup-predicates )
-(setq folder (directory (current-pathname "../predicates/*.*" *load-truename*)))
+(setf folder (directory (current-pathname "../predicates/*.*" *load-truename*)))
 (predicates:load-predicates folder)
-(predicates:get-clause-predicates)
+(print (predicates:get-clause-predicates))
 
 (setq liste (first (resolution:run-program path)))
 
