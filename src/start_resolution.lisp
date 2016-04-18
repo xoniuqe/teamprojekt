@@ -1,41 +1,54 @@
 ;(cd #P"C:/Users/Tobias/Documents/Lisp/cl-reason/src/")
+
 ;(get-current-directory)
 
-(if (not (require 'asdf)) 
-    (load (merge-pathnames "../lib/asdf" *load-truename*))
-)
+(SETQ SYSTEM:*STACK-OVERFLOW-BEHAVIOUR* NIL)
 
-(load (merge-pathnames "init" *load-truename*))
-(load (merge-pathnames "util/util" *load-truename*))
-(load (merge-pathnames "parser/lexer" *load-truename*))
-(load (merge-pathnames "parser/parser" *load-truename*))
-(load (merge-pathnames "predicates/predicates" *load-truename*))
-(load (merge-pathnames "logik/resolution" *load-truename*))
+(if (not (require 'asdf)) 
+    (load (current-pathname "../lib/asdf" ))
+)
+(load (current-pathname "../lib/cl-ppcre-2.0.9/cl-ppcre.asd"))
+(load (current-pathname "../lib/cl-yacc-20101006-darcs/yacc.asd"))
+
+(load (current-pathname "init" ))
+(load (current-pathname "util/util" ))
+(load (current-pathname "parser/lexer" ))
+(load (current-pathname "parser/parser" ))
+(load (current-pathname "predicates/predicates" ))
+(load (current-pathname "logik/resolution" ))
+(load (current-pathname "gui/GUI"))
 
 ; zeug zum testen und für schöne ausgabe
-(setq file-path (merge-pathnames "../test/test_pred2.clr" *load-truename*))
+;(setq file-path (merge-pathnames "../test/test_pred3.clre" *load-truename*))
 
-(run)
+(set-eval-func 'run)
 
-(defun run () 
+
+(main)
+
+
+;(setq path Pfad)
+(defun run (path) 
 
 
 (predicates:setup-predicates )
-(setq folder (directory (merge-pathnames "../predicates/*.*" *load-truename*)))
+(setq folder (directory (current-pathname "../predicates/*.*" *load-truename*)))
 (predicates:load-predicates folder)
 (predicates:get-clause-predicates)
 
-(setq liste (first (resolution:run-program file-path)))
+(setq liste (first (resolution:run-program path)))
 
-(mapcar (lambda(x) 
+(setf result (mapcar (lambda(x) 
 	(mapcar 'calc-result x)
-	) liste)
+	) liste))
+(print result)
+(print "ergebnis ist ok :)")
 )
 
 (defun calc-result (result)
-	(print result)
+;	(print result)
 	(let ((type (get result 'resolution::type)))
-          (print type)
+         ; (print type)
 		(cond ((equal type 'variable) (get result 'resolution::name))
                       ((equal type 'function) (eval-fun result))
                       ((equal type 'parser::const) (get result 'resolution::name))
