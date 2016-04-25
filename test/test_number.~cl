@@ -5,4 +5,6 @@ forall x y z: supersum(x, y + z) <= sum(x,y) and sum(x,z).
 
 forall x y z: sum(x,y) and sum(x,z) and supersum(x,y) => test(x,y+z).
 
-exists x: test([1,2,3],x).
+
+
+exists x: sum([1,2,3],x).

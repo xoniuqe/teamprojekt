@@ -1,0 +1,7 @@
+sum([], 0).
+forall h t y: sum([h | t], y + h) <= sum(t,y).
+
+
+
+
+exists x: sum([1,2,3],x).

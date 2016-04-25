@@ -400,6 +400,7 @@
 	)
 	
        ((not program-stack) 'fail)
+	   ;((if (not program-stack)(mapcar 'print goals)) 'fail)
 	   
 	   ;;; TODO add check if it is an predefined lisp predicate
 
@@ -431,7 +432,7 @@
 			     )
 				 ;(print neg-literals)
 	;; hiermit wird das program auch dann beendet wenn nur diese eine clausel auf das prädikat zutrifft
-
+				(print resolvent)
 				(setf pred-literals (remove-if-not 'predicates:is-predefined-predicate neg-literals))
 				(setf other-literals (remove-if 'predicates:is-predefined-predicate neg-literals))
 				(setf (get resolvent 'neg-lits) (append other-literals pred-literals))

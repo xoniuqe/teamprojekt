@@ -36,7 +36,7 @@
    (new-file capi:push-button
              :image NewImage
              :callback-type :none
-             :selection-callback (lambda() (setf (capi:editor-pane-text inp) "Keine Eingabe vorhanden") (setf (capi:editor-pane-text Anfrage) "Keine Anfrage vorhanden")(setf(capi:editor-pane-text outp) "Keine Ausgabe vorhanden"))) ;Text der Editoren überschreiben
+             :selection-callback (lambda() (setf (capi:editor-pane-text inp) "Keine Eingabe vorhanden") (setf (capi:editor-pane-text Anfrage) "Keine Anfrage vorhanden")(setf(capi:editor-pane-text outp) "Keine Ausgabe vorhanden") (setq Pfad ""))) 
    (evaluate-data capi:push-button
                   :image EvalImage
                   :callback-type :none
@@ -67,7 +67,11 @@
  (file-menu "File"
             (("New"
             :callback-type :none  
-            :selection-callback (lambda() (and (setf (capi:editor-pane-text inp) "Keine Eingabe vorhanden") (setf (capi:editor-pane-text Anfrage) "Keine Anfrage vorhanden")(setf(capi:editor-pane-text outp) "Keine Ausgabe"))))
+            :selection-callback (lambda()
+			(and (setf (capi:editor-pane-text inp) "Keine Eingabe vorhanden") 
+			(setf (capi:editor-pane-text Anfrage) "Keine Anfrage vorhanden")
+			(setf(capi:editor-pane-text outp) "Keine Ausgabe vorhanden") 
+			(setq Pfad ""))))
              ("Open..."
              :callback-type :none
              :selection-callback (lambda () 
@@ -262,8 +266,8 @@ Resolution: Steven Kutsch "
   (when (not CLR_SP_Pfad) ;Falls noch kein Pfad in der Pfaddatei existiert...
       (SP_Pfad_aendern 0)) ;... wird hier einer gesetzt ;; durch die 0 wird die Erzeugung eines zweiten Fensters verhindert
   (when clr_sp_pfad
-    (toString (directory (concatenate 'string (namestring CLR_SP_Pfad) "*.pred"))))) ;Eine Liste mit allen Pfaden an "toString" übergeben
-
+    (reverse(toString (directory (concatenate 'string (namestring CLR_SP_Pfad) "*.pred")))))) 
+	
 (defun toString (Liste) ;Rekursiv gelöst
   (Cond((not Liste) ()) ;Falls Liste leer, eine leere Liste zurückgeben 
        (T (append (list (subseq (namestring (car Liste)) (length (namestring CLR_SP_Pfad)))) (toString(cdr Liste)))))) ;An eine Liste wird der Dateiname angehangen (dieser beginnt am der Länge des Pfades des Ordners), anschließend rekursiver Aufruf mit dem Rest der Liste 

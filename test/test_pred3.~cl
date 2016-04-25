@@ -5,6 +5,4 @@ farbe(braun).
 farbe(rot).
 forall a b c d e: farbung(a,b,c,d,e) <= farbe(a) and farbe(b) and farbe(c) and farbe(d) and farbe(e) and nequal(a,b) and nequal(a,d) and nequal(a,e) and nequal(b,c) and nequal(b,e) and nequal(c,e) and nequal(d,e).
 
-
-
 exists a b c d e: farbung(a, b, c, d, e).
