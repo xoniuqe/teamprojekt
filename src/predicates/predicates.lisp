@@ -67,6 +67,8 @@
 
 (defun is-predefined-predicate (lit)
 	(let ((predicate (get-predicate (get lit 'lexer:name))))
+		(print (get lit 'lexer:name))
+		(print predicate)
 		(cond ((not predicate) NIL)
 			((equal (get predicate 'type) 'LISP) T)
 			(T NIL)
