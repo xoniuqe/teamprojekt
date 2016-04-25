@@ -8,8 +8,9 @@
 
 (in-package :lexer)
 
-(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\([^)]*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
-
+;(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
+;(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\([^)]*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
+(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
 (defvar *regex-term* "\\d+|\\w+|.")
 
 ;;; test programm
@@ -21,9 +22,10 @@
 ;(defvar path "/home/steven/dev/lisp/cl-reason/test/test_prog.clr")
 
 (defun split-into-tokens (str)
+	(print "split-into-tokens")
   (mapcan (lambda (clause)
 		(print clause)
-		(print  (cl-ppcre:all-matches-as-strings *regex-prog* clause))
+		;(print  (cl-ppcre:all-matches-as-strings *regex-prog* clause))
 	    (cl-ppcre:all-matches-as-strings *regex-prog* clause))
 	  (cl-ppcre:all-matches-as-strings ".+?\\." str)))
 

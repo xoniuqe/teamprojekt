@@ -1,7 +1,7 @@
 sum([], 0).
 forall h t y: sum([h | t], y + h) <= sum(t,y).
 
+forall x y: test(x, y) <= equal(x + y, y + x).
 
 
-
-exists x: sum([1,2,3],x).
+exists x: equal(a,a).

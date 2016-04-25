@@ -400,16 +400,16 @@
 	;; (setq program-stack (list (mapcar 'copy-clause (extract-procedure program (get cur-subgoal 'name)))))
 	)
 	
-       ;((not program-stack) 'fail)
+       ((not program-stack) 'fail)
 	  ; ((and (not program-stack) 
 		;	 (not (every 'predicates:is-predefined-predicate (get goal 'neg-lits)))) 
 		;(progn (print "fail") (mapcar 'predicates:is-predefined-predicate (get goal 'neg-lits))(print (prepare-goal goal)) 'fail))
-	   	((not program-stack)
+	   	#|((not program-stack)
 			;(print (get goal 'neg-lits))
 			(let ((pos-lit (get goal 'pos-lit)))
 			(if (predicates:is-predefined-predicate pos-lit) 
 				(if (predicates:eval-predicate (get pos-lit 'lexer:name) (get pos-lit 'lexer:args)) (return (list (get goal 'vars) (get pos-lit 'lexer:args))) 'fail)
-				'fail)))
+				'fail)))|#
 
 		;	(if (not neg-literals)
 			  ;  (return (list (get goal 'vars) (get (get resolvent 'pos-lit) 'args)))

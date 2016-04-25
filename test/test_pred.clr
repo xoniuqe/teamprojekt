@@ -6,4 +6,4 @@ ghi(steven).
 
 forall x: test(x) <= abc(x) and def(x) and ghi(x). 
 
-exists x: member(1,[1,2,3]).
+exists x: member(4,[1,2,3]).

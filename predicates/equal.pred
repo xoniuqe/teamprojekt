@@ -1,3 +1,7 @@
 (lambda (x y)
+	(print (get x 'lexer::name))
+	(print (get y 'lexer::name))
+	(print x)
+	(print y)
 	(equal (get x 'lexer::name) (get y 'lexer::name))
 )

@@ -77,9 +77,12 @@
 )
 
 (defun eval-predicate (pred-name args)
+	(print "eval-predicate: ")
+	(print pred-name)
+	(print args)
 	(if (get-predicate pred-name) 
 		; (let ((proc-args (mapcar (lambda (arg) (get arg 'lexer:name)) args)))
-		 	(apply (get-predicate-func pred-name) args)
+		 	(progn (setf result (apply (get-predicate-func pred-name) args)) (print "nach apply") result)
 		; )
 		NIL
 	)

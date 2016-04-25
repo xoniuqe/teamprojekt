@@ -1,0 +1,7 @@
+forall x y: is(y, y).
+forall x y z: test(x, y, z) <= is(x,y + z)
+
+
+
+
+exists x y: is(x, 2, 3).

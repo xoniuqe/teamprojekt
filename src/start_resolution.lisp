@@ -22,7 +22,7 @@
 
 
 ; zeug zum testen und für schöne ausgabe
-;(setq file-path (merge-pathnames "../test/test_pred.clr" *load-truename*))
+;(setq path (merge-pathnames "../test/uebung1.clre" *load-truename*))
 
 (set-eval-func 'run)
 
@@ -43,7 +43,7 @@
 
 (setf result (mapcar (lambda(x) 
 	(mapcar 'calc-result x)
-	) liste))
+	) liste)) 
 ;(print result)
 ;(print "ergebnis ist ok :)")
 )
@@ -107,6 +107,6 @@
 			(apply '+ number-list))
                       ((string-equal operator "cons")
                         (apply 'cons number-list))
-			(T NIL))
+			(T (list operator number-list)))
 	)
 )

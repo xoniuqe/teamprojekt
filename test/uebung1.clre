@@ -1,0 +1,10 @@
+vsumme([],[],[]).
+forall a b c d e f: vsumme([a|c], [b|d], [e|f]) <=  vsumme(c, d, f) and  is(e,a + b).
+
+forall a b x y: demorgan(nicht(oder(a,b)), und(x,y)) <= demorgan(nicht(a),x) and demorgan(nicht(b),y).
+forall a r: demorgan(nicht(nicht(a)), r) <= demorgan(a,r).
+forall a b x y: demorgan(und(a,b), und(x,y)) <= demorgan(a,x) and demorgan(b,y).
+forall a b x y: demorgan(oder(a,b), oder(x,y)) <= demorgan(a,x) and demorgan(b,y).
+forall x: demorgan(x,x).
+
+exists x : demorgan(und(nicht(nicht(a)),nicht(b)),x).

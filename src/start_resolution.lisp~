@@ -22,7 +22,7 @@
 
 
 ; zeug zum testen und für schöne ausgabe
-;(setq file-path (merge-pathnames "../test/test_pred3.clre" *load-truename*))
+;(setq file-path (merge-pathnames "../test/test_pred.clr" *load-truename*))
 
 (set-eval-func 'run)
 
@@ -102,6 +102,7 @@
 				)
 			)
 		(get fun 'lexer:args))))
+                ;(apply operator number-list)
 		(cond ((string-equal operator "+") 
 			(apply '+ number-list))
                       ((string-equal operator "cons")
