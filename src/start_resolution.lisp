@@ -10,7 +10,7 @@
 (load (current-pathname "init" ))
 (load (current-pathname "util/util" ))
 
-(load (current-pathname "../lib/cl-ppcre-2.0.9/cl-ppcre.asd"))
+(load (current-pathname "../lib/cl-ppcre-2.0.11/cl-ppcre.asd"))
 (load (current-pathname "../lib/cl-yacc-20101006-darcs/yacc.asd"))
 
 
@@ -23,6 +23,7 @@
 
 ; zeug zum testen und für schöne ausgabe
 ;(setq path (merge-pathnames "../test/uebung1.clre" *load-truename*))
+;(setq path (merge-pathnames "../test/test_pred3.clr" *load-truename*))
 
 (set-eval-func 'run)
 

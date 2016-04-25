@@ -10,7 +10,8 @@
 
 ;(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
 ;(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\([^)]*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
-(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
+(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\([^()]*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
+(setq *regex-nested* "and|[a-zA-Z0-9]+\\(.*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)")
 (defvar *regex-term* "\\d+|\\w+|.")
 
 ;;; test programm
@@ -24,8 +25,8 @@
 (defun split-into-tokens (str)
 	(print "split-into-tokens")
   (mapcan (lambda (clause)
-		(print clause)
-		;(print  (cl-ppcre:all-matches-as-strings *regex-prog* clause))
+		;(print clause)
+		(print  (cl-ppcre:all-matches-as-strings *regex-prog* clause))
 	    (cl-ppcre:all-matches-as-strings *regex-prog* clause))
 	  (cl-ppcre:all-matches-as-strings ".+?\\." str)))
 
@@ -68,10 +69,26 @@
     sym))
 
 (defun lexer (text)
-  (lex-list (split-into-tokens text)))
+	(let* ((splitted (split-into-tokens text))
+		 (testtest (mapcar (lambda (x)
+	(let ((result (cl-ppcre:all-matches-as-strings *regex-nested* x)))
+		(if (or (not result) (eq (list-length result) 1)) NIL (list x result))
+	)
+)		 splitted))
+	)
+	
+	(setf testtest (remove nil testtest))
+	(mapcar (lambda (x) 
+		(print (position (first x) splitted))
+	) testtest)
+	(print testtest)
+	;(print splitted)
+	(lex-list splitted)
+  ))
 
 (defun lex-file (path)
   (lexer (read-file-to-string path)))
+
 
 ;;; (setq termstring "(f(z,h(w),h(z)))")
 (defun tokenize-terms (termstring)
