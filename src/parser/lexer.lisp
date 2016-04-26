@@ -10,8 +10,10 @@
 
 ;(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
 ;(setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\([^)]*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
+;;; Changed and added by Tobias Arens
 (setq *regex-prog* "forall|exists|and|<=|=>|:|[a-zA-Z0-9]+\\(.*\\)(?=\\s*<=)|[a-zA-Z0-9]+\\([^()]*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)(?=\\s*=>)|[a-zA-Z0-9]+\\(.*\\)(?=\\.)|[a-z]+|\\.")
 (setq *regex-nested* "and|[a-zA-Z0-9]+\\(.*\\)(?=\\s*and)|[a-zA-Z0-9]+\\(.*\\)")
+;;; Changes end
 (defvar *regex-term* "\\d+|\\w+|.")
 
 ;;; test programm
@@ -34,7 +36,7 @@
   "replaces strings in 'l' with appropriate tokens"
   (mapcar (lambda (x)
   		(print (list "lex-list: " x))
-	    (cond ((string= x "forall") (make-token "lexer::forall"))
+	    (setf tmp (cond ((string= x "forall") (make-token "lexer::forall"))
 		  ((string= x "exists") (make-token "lexer::exists"))
 		  ((string= x "and") (make-token "lexer::and"))
 		  ((string= x "=>") (make-token "lexer::=>"))
@@ -43,6 +45,8 @@
 		  ((string= x ":") (make-token "lexer::in"))
 		  ((= (length x) 1) (make-variable-sym x))
 		  (t (make-literal-sym x))))
+		 ;(print tmp)
+		 tmp)
 	  l))
 
 (defun make-token (s)
@@ -68,22 +72,37 @@
     (setf (symbol-value sym) 'lit)
     sym))
 
+	
+;;; Changed by Tobias Arens
+;;; added a extra regex check for wrong lexed terms that could occurr if there were nested brackets
+;;; Simply loop other every element and run an regex and check if something changed
+;;; e.g "predicate(nested(bracket),x) and predicate(nested(bracket),y)" is read as one token but should be three
 (defun lexer (text)
 	(let* ((splitted (split-into-tokens text))
-		 (testtest (mapcar (lambda (x)
-	(let ((result (cl-ppcre:all-matches-as-strings *regex-nested* x)))
-		(if (or (not result) (eq (list-length result) 1)) NIL (list x result))
-	)
-)		 splitted))
-	)
+		 (nestedregex (remove nil(mapcar 
+					 (lambda (x)
+						(let ((result (cl-ppcre:all-matches-as-strings *regex-nested* x)))
+							(if (or (not result) (eq (length result) 1)) NIL (list x result))
+						))		 
+					splitted))))
 	
-	(setf testtest (remove nil testtest))
-	(mapcar (lambda (x) 
-		(print (position (first x) splitted))
-	) testtest)
-	(print testtest)
-	;(print splitted)
-	(lex-list splitted)
+	;(setf testtest (remove nil testtest))
+	(setf replacedlist nil)
+	(setf listcopy splitted)
+	(do* ((current (car nestedregex))
+	       
+		   )
+		 ((not nestedregex))
+		(let* ((pos (position (first current) listcopy :test 'string-equal))
+			  (listto(subseq listcopy 0 pos )))
+		(setf listcopy (subseq listcopy (+ pos 1)))
+		(setf replacedlist (append replacedlist listto (second current)))
+		)
+		(setf nestedregex (cdr nestedregex))
+	)
+	;; Append the rest list
+	(setf replacedlist (append replacedlist listcopy))
+	(lex-list replacedlist)
   ))
 
 (defun lex-file (path)
