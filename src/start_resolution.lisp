@@ -16,14 +16,17 @@
 
 (load (current-pathname "parser/lexer" ))
 (load (current-pathname "parser/parser" ))
+
+(load (current-pathname "helper/helper" ))
 (load (current-pathname "predicates/predicates" ))
 (load (current-pathname "logik/resolution" ))
+
 (load (current-pathname "gui/GUI"))
 
 
 ; zeug zum testen und für schöne ausgabe
 ;(setq path (merge-pathnames "../test/uebung1.clre" *load-truename*))
-;(setq path (merge-pathnames "../test/test_pred3.clr" *load-truename*))
+;(setq path (merge-pathnames "../test/test_number.clre" *load-truename*))
 
 (set-eval-func 'run)
 
@@ -43,71 +46,6 @@
 (setq liste (first (resolution:run-program path)))
 
 (setf result (mapcar (lambda(x) 
-	(mapcar 'calc-result x)
+	(mapcar 'helper:calc-result x)
 	) liste)) 
-;(print result)
-;(print "ergebnis ist ok :)")
-)
-
-(defun calc-result (result)
-;	(print result)
-	(let ((type (get result 'resolution::type)))
-         ; (print type)
-
-		(cond ((equal type 'variable) (get result 'resolution::name))
-                      ((equal type 'function) (eval-fun result))
-                      ((equal type 'parser::const) (get result 'resolution::name))
-			  )
-	)
-)
-
-
-(defun check-fun-args-const (fun)
-	(let* ((operator (get fun 'lexer:name))
-		(result (mapcar (lambda (argument) 
-				(let ((type (get argument 'type)))
-					(cond ((equal type 'function) (check-fun-args-const argument))
-						  ((equal type 'parser::const) T)
-						  (T (progn (print (list "fail" argument type)) (return-from check-fun-args-const NIL)))
-					)
-				)
-			)
-		(get fun 'lexer:args))))
-		(mapcar (lambda (x) (if (not x) (return-from check-fun-args-const NIL))) result)
-		(return-from check-fun-args-const T)
-	)
-)
-
-(defun is-arith-fun (fun)
-	(let* ((operator (get fun 'lexer:name))
-		(result (cond ((string-equal operator "+") T) 
-			(T NIL))))
-	;	(print (list "is-arith-fun:" result))
-		result
-	)
-)
-
-(defun eval-fun (fun)
-	(let ((operator (get fun 'lexer::name))
-		(number-list (mapcar (lambda (argument) 
-			;	(print (list "argument:" argument))
-				(let ((type (get argument 'type))
-					  (nvalue (get argument 'parser::value)))
-					(cond ((not nvalue) (setq nvalue (get argument 'parser::name)))
-						 (T NIL))
-					(print (list "value: " nvalue))
-					(cond ((equal type 'function) (eval-fun argument))
-						  ((equal type 'parser::const) nvalue)
-						  (T NIL)
-					)
-				)
-			)
-		(get fun 'lexer:args))))
-                ;(apply operator number-list)
-		(cond ((string-equal operator "+") 
-			(apply '+ number-list))
-                      ((string-equal operator "cons")
-                        (apply 'cons number-list))
-			(T (list operator number-list)))
-	)
 )
