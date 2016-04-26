@@ -1,5 +1,5 @@
 (defpackage :predicates
-  (:use :common-lisp :util :lexer :parser)
+  (:use :common-lisp :util :lexer :parser :helper)
   (:export :load-predicates)
   (:export :load-predicate)
   (:export :setup-predicates)
@@ -20,16 +20,13 @@
 )
 
 (defun load-predicate (path)
-	;(print (list "path" path))
-		; demo für predicate in clr sprache
 	(if (string-equal "clr" (pathname-type path))
 		(let ((parsed (parser:parse-file path))
 			  (pred-name (pathname-name path)))
 			(if (not parsed) (return-from load-predicates))
-			;(print "clr predicate, not implemented yet!")
 			(add-predicate pred-name parsed 'CLR)
 		)
-		(let ((content (dateilesen path))
+		(let ((content (clr-read-file path))
 			  (pred-name (pathname-name path)))
 			(add-predicate pred-name (eval (first content)) 'LISP)	
 		)
@@ -67,8 +64,6 @@
 
 (defun is-predefined-predicate (lit)
 	(let ((predicate (get-predicate (get lit 'lexer:name))))
-		(print (get lit 'lexer:name))
-		(print predicate)
 		(cond ((not predicate) NIL)
 			((equal (get predicate 'type) 'LISP) T)
 			(T NIL)
@@ -77,20 +72,15 @@
 )
 
 (defun eval-predicate (pred-name args)
-	(print "eval-predicate: ")
-	(print pred-name)
-	(print args)
 	(if (get-predicate pred-name) 
-		; (let ((proc-args (mapcar (lambda (arg) (get arg 'lexer:name)) args)))
-		 	(progn (setf result (apply (get-predicate-func pred-name) args)) (print "nach apply") result)
-		; )
+		(apply (get-predicate-func pred-name) args)
 		NIL
 	)
 )
 
 ;;Move to utils
-(defun dateilesen (dateiname)
-  (do* ((streamin (open dateiname))
+(defun clr-read-file (filename)
+  (do* ((streamin (open filename))
         exprs
         (expr (read streamin nil 'eof)
               (read streamin nil 'eof)))
