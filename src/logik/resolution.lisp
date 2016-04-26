@@ -333,55 +333,6 @@
 ; (setq program (car input))
 ; (setq goal (first (cadr input)))
 
-(defun check-fun-args-const (fun)
-	(let* ((operator (get fun 'lexer:name))
-		(result (mapcar (lambda (argument) 
-				(let ((type (get argument 'type)))
-					(cond ((equal type 'function) (check-fun-args-const argument))
-						  ((equal type 'parser::const) T)
-						  (T (progn (print (list "fail" argument type)) (return-from check-fun-args-const NIL)))
-					)
-				)
-			)
-		(get fun 'lexer:args))))
-		(mapcar (lambda (x) (if (not x) (return-from check-fun-args-const NIL))) result)
-		(return-from check-fun-args-const T)
-	)
-)
-
-(defun is-arith-fun (fun)
-	(let* ((operator (get fun 'lexer:name))
-		(result (cond ((string-equal operator "+") T) 
-			(T NIL))))
-	;	(print (list "is-arith-fun:" result))
-		result
-	)
-)
-(defun eval-fun (fun)
-	;(print "----")
-	;;(print "in eval-fun")
-	;(print fun)
-	(let ((operator (get fun 'lexer::name))
-		(number-list (mapcar (lambda (argument) 
-			;	(print (list "argument:" argument))
-				(let ((type (get argument 'type))
-					  (nvalue (get argument 'parser::value)))
-					(cond ((not nvalue) (setq nvalue 0))
-						 (T NIL))
-					;(print (list "value: " nvalue))
-					(cond ((equal type 'function) (eval-fun argument))
-						  ((equal type 'parser::const) nvalue)
-						  (T NIL)
-					)
-				)
-			)
-		(get fun 'lexer:args))))
-		(cond ((string-equal operator "+") 
-			(apply '+ number-list))
-			(T NIL))
-	)
-)
-
 ;; program is the list of prog-clauses
 ;; Goal is a clause with the pos-lit "answer(x1,...,xn)"
 ;; where xi is a variable in the goal
@@ -400,28 +351,17 @@
 	;; (setq program-stack (list (mapcar 'copy-clause (extract-procedure program (get cur-subgoal 'name)))))
 	)
 	
-       ((not program-stack) 'fail)
-	  ; ((and (not program-stack) 
-		;	 (not (every 'predicates:is-predefined-predicate (get goal 'neg-lits)))) 
-		;(progn (print "fail") (mapcar 'predicates:is-predefined-predicate (get goal 'neg-lits))(print (prepare-goal goal)) 'fail))
-	   	#|((not program-stack)
-			;(print (get goal 'neg-lits))
-			(let ((pos-lit (get goal 'pos-lit)))
-			(if (predicates:is-predefined-predicate pos-lit) 
-				(if (predicates:eval-predicate (get pos-lit 'lexer:name) (get pos-lit 'lexer:args)) (return (list (get goal 'vars) (get pos-lit 'lexer:args))) 'fail)
-				'fail)))|#
-
-		;	(if (not neg-literals)
-			  ;  (return (list (get goal 'vars) (get (get resolvent 'pos-lit) 'args)))
+       ;((not program-stack) 'fail)
+	   ;;If it cant resolute any more check if the failed goal is a predefined lisp predicate and eval if true
+	   ;; else let resolution fail
+	   ((not program-stack) 
+		(if (and (predicates:is-predefined-predicate (get goal 'pos-lit))
+				 (predicates:eval-predicate (get (get goal 'pos-lit) 'lexer:name) (get (get goal 'pos-lit) 'lexer:args)))
+			(return (list (get goal 'vars) (get (get goal 'pos-lit) 'lexer:args))) 
+			'fail))
 	   ;;; TODO add check if it is an predefined lisp predicate
 
        (let ((cur-procedure (car program-stack)))
-	 #|(if (and (not cur-procedure)(predicates:is-predefined-predicate cur-subgoal));(and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
-			(if (not (predicates:eval-predicate (get cur-subgoal 'lexer:name)   (get cur-subgoal 'lexer:args)))
-				NIL
-				(return (list (get goal 'vars) (get (get resolvent 'pos-lit) 'args)))
-			)
-		NIL)|#
 	 (if (not cur-procedure)
 	     (progn ;; Backtracking
 	       (setq goals (cdr goals))
@@ -441,7 +381,6 @@
 			     (neg-literals (get resolvent 'neg-lits))
 			     ;; (setq neg-literals (get resolvent 'neg-lits))
 			     )
-				 ;(print neg-literals)
 	;; hiermit wird das program auch dann beendet wenn nur diese eine clausel auf das prädikat zutrifft
 				(print resolvent)
 				(setf pred-literals (remove-if-not 'predicates:is-predefined-predicate neg-literals))
@@ -458,16 +397,6 @@
 				NIL)) pred-literals))
 				
 				(setf neg-literals (append other-literals pred-literals))
-				
-				#|(setf neg-literals (remove-if (lambda (lit) 
-				;;lexer:args enthält eine liste der literale, diese müssen mit einer schleife getestet werden ob jedes const ist
-				;; dann mus diese liste an eval-predicate gereicht werden
-				(if (predicates:is-predefined-predicate lit);(and (is-predefined-predicate lit) (term-is-const (first (get lit 'lexer:args))))
-					(if (not (predicates:eval-predicate (get lit 'lexer:name)   (get lit 'lexer:args)))
-						NIL
-						T
-					)
-				NIL)) neg-literals))|#
 				
 			(if (not neg-literals)
 			    (return (list (get goal 'vars) (get (get resolvent 'pos-lit) 'args)))
