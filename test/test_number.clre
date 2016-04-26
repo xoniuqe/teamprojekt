@@ -4,4 +4,4 @@ forall h t y: sum([h | t], y + h) <= sum(t,y).
 forall x y: test(x, y) <= equal(x + y, y + x).
 
 
-exists x: equal(a,a).
+exists x: append([1,2,3],[a,b,c],x).
