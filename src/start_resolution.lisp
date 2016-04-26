@@ -17,9 +17,10 @@
 (load (current-pathname "parser/lexer" ))
 (load (current-pathname "parser/parser" ))
 
-(load (current-pathname "helper/helper" ))
+
 (load (current-pathname "predicates/predicates" ))
 (load (current-pathname "logik/resolution" ))
+(load (current-pathname "helper/helper" ))
 
 (load (current-pathname "gui/GUI"))
 
@@ -27,6 +28,7 @@
 ; zeug zum testen und für schöne ausgabe
 ;(setq path (merge-pathnames "../test/uebung1.clre" *load-truename*))
 ;(setq path (merge-pathnames "../test/test_number.clre" *load-truename*))
+;(setq path (merge-pathnames "../test/test.clre" *load-truename*))
 
 (set-eval-func 'run)
 
