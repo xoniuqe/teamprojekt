@@ -1,5 +1,5 @@
 (defpackage :predicates
-  (:use :common-lisp :util :lexer :parser :helper)
+  (:use :common-lisp :util :lexer :parser)
   (:export :load-predicates)
   (:export :load-predicate)
   (:export :setup-predicates)

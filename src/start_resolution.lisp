@@ -35,14 +35,15 @@
 ;test
 (main)
 
+(predicates:setup-predicates )
+(setf folder (directory (current-pathname "../predicates/*.*" *load-truename*)))
+(predicates:load-predicates folder)
 
 ;(setq path Pfad)
 (defun run (path) 
 
 
-(predicates:setup-predicates )
-(setf folder (directory (current-pathname "../predicates/*.*" *load-truename*)))
-(predicates:load-predicates folder)
+
 (print (predicates:get-clause-predicates))
 
 (setq liste (first (resolution:run-program path)))
