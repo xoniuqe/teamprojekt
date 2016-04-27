@@ -40,7 +40,7 @@
    (evaluate-data capi:push-button
                   :image EvalImage
                   :callback-type :none
-                  :selection-callback (lambda () (mp:process-run-function "run-eval" () (lambda () (setf (capi:editor-pane-text outp) (write-to-string (evaluate))))))) ;Funktion muss noch angelegt werden!!!
+                  :selection-callback (lambda () (mp:process-run-function "run-eval" () (lambda () (speichern inp Anfrage) (setf (capi:editor-pane-text outp) (write-to-string (evaluate))))))) ;Funktion muss noch angelegt werden!!!
                  ;; :selection-callback (lambda () (setf (capi:editor-pane-text outp) (write-to-string (evaluate))))) ;zum testen ohne threading, wegen begrenzter lispworks version
    (inp capi:editor-pane
            :title "Eingabe"

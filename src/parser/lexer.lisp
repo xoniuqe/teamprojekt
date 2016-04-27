@@ -1,4 +1,4 @@
-(asdf:operate 'asdf:load-op :cl-ppcre)
+ (eval-when (:compile-toplevel :load-toplevel :execute) (asdf:operate 'asdf:load-op :cl-ppcre))
 
 (defpackage :lexer
   (:use :common-lisp :cl-ppcre :util)
