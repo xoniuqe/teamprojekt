@@ -290,8 +290,8 @@
 
 ;; calculates the resolvent of a resolution by
 ;;   - deleting the first neg-lit
-;;   - applieing the unifier and
-;;   - replasing all variables with new ones ???
+;;   - applying the unifier and
+;;   - replacing all variables with new ones ???
 
 ;; (setq goal-clause cur-goal-clause)
 ;; (setq prog-clause (car cur-procedure))
@@ -357,7 +357,7 @@
 	   ((not program-stack) 
 		(if (and (predicates:is-predefined-predicate (get goal 'pos-lit))
 				 (predicates:eval-predicate (get (get goal 'pos-lit) 'lexer:name) (get (get goal 'pos-lit) 'lexer:args)))
-			(return (list (get goal 'vars) (get (get goal 'pos-lit) 'lexer:args))) 
+			(return (list (list 'True)));(list (get goal 'vars) (get (get goal 'pos-lit) 'lexer:args) goal)) 
 			'fail))
 	   ;;; TODO add check if it is an predefined lisp predicate
 

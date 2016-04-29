@@ -1,4 +1,4 @@
-(asdf:operate 'asdf:load-op :yacc)
+ (eval-when (:compile-toplevel :load-toplevel :execute) (asdf:operate 'asdf:load-op :yacc))
 
 (defpackage :parser
   (:use :common-lisp :lexer :util :yacc)

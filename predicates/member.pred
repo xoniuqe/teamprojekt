@@ -1,6 +1,6 @@
-(lambda (x list)
+(lambda (x liste)
 	(setf result NIL)
-	(let ((args (get list 'lexer::args)))
+	(let ((args (get liste 'lexer::args)))
 		(do* ((current (car args)))
 			((not args) NIL)
 			(setf args (cdr args))
